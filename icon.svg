@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#020509"/>
+  <rect width="512" height="4" y="0" fill="url(#topline)"/>
+  <defs>
+    <linearGradient id="topline" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:transparent"/>
+      <stop offset="50%" style="stop-color:#FF003C"/>
+      <stop offset="100%" style="stop-color:transparent"/>
+    </linearGradient>
+    <linearGradient id="textgrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF4D6D"/>
+      <stop offset="100%" style="stop-color:#C8102E"/>
+    </linearGradient>
+  </defs>
+  <!-- A letter -->
+  <text x="256" y="320" font-family="Arial Black, sans-serif" font-size="280" font-weight="900"
+    text-anchor="middle" fill="url(#textgrad)">A</text>
+  <!-- bottom label -->
+  <rect x="96" y="370" width="320" height="52" rx="10" fill="#C8102E" opacity="0.15"/>
+  <text x="256" y="406" font-family="Arial, sans-serif" font-size="38" font-weight="700"
+    text-anchor="middle" fill="#FF4D6D" letter-spacing="3">IQF CALC</text>
+</svg>
