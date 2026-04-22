@@ -1,4 +1,4 @@
-const CACHE = 'agrocalc-v7';
+const CACHE = 'agrocalc-v8';
 
 self.addEventListener('install', e => {
   e.waitUntil(
