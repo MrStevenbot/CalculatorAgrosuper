@@ -41,6 +41,14 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .tools-menu-item:hover{background:#1a2540}
 .tools-menu-item .tm-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
 .tools-menu-item .tm-sub{font-size:10px;color:#506480;margin-top:1px}
+.tm-sub-toggle{display:flex;align-items:center;gap:10px;padding:11px 14px;color:#C8D6EF;font-size:13px;font-weight:600;border-top:1px solid #ffffff08;cursor:pointer;transition:background .15s;user-select:none}
+.tm-sub-toggle:active{background:#1a2540}
+.tm-sub-toggle .tm-icon{font-size:18px;width:24px;text-align:center;flex-shrink:0}
+.tm-sub-toggle .tm-sub{font-size:10px;color:#506480;margin-top:1px}
+.tm-arr{margin-left:auto;color:#4a6a8a;font-size:11px;transition:transform .2s;flex-shrink:0}
+.tm-arr.open{transform:rotate(90deg)}
+.tm-sub-body{display:none;background:#060e1e}
+.tm-sub-item{padding-left:28px!important;font-size:12px!important;color:#a0b8d8!important}
 .kgh-badge{background:linear-gradient(135deg,#1a0005,#2d000d);padding:5px 10px;border-radius:20px;color:#FF6B8A;font-size:11px;font-weight:700;white-space:nowrap;border:1px solid #FF003C50;box-shadow:0 0 10px #FF003C30}
 .tabs{display:flex;border-top:1px solid #ffffff08;margin:0 -16px;padding:0 4px}
 .tab{flex:1;background:none;border:none;padding:8px 2px 7px;font-size:17px;font-weight:600;color:#2a5a7a;cursor:pointer;border-bottom:2.5px solid transparent;font-family:inherit;transition:color .15s}
@@ -193,7 +201,7 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.08 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.09 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -203,10 +211,33 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
       <button class="tools-btn" onclick="toolsMenuToggle(event)" title="Herramientas">&#9776;</button>
       <div id="tools-menu" class="tools-menu" style="display:none">
         <div class="tools-menu-title">Herramientas Jefe de L&#237;nea</div>
-        <a class="tools-menu-item" href="https://agrosuper.accounts.ondemand.com/oauth2/authorize?response_type=code&scope=openid+email&client_id=82273fea-3a14-4bc8-8b70-fa73b650bfdd&state=state&nonce=m-0G6_FaS3Kg&redirect_uri=https://agrosuper.prevsis.com/callback" target="_blank" rel="noopener" onclick="toolsMenuClose()">
-          <span class="tm-icon">&#128274;</span>
-          <div><div>SSO Agrosuper</div><div class="tm-sub">Seguridad Ocupacional &middot; prevsis</div></div>
-        </a>
+        <div class="tm-sub-toggle" onclick="toolsSubToggle(this)">
+          <span class="tm-icon">&#128737;</span>
+          <div><div>SSO / Prevsis</div><div class="tm-sub">Seguridad Ocupacional &middot; 5 accesos</div></div>
+          <span class="tm-arr">&#9658;</span>
+        </div>
+        <div class="tm-sub-body">
+          <a class="tools-menu-item tm-sub-item" href="https://agrosuper.prevsis.com/Login/LoginFormCambio" target="_blank" rel="noopener" onclick="toolsMenuClose()">
+            <span class="tm-icon">&#128274;</span>
+            <div><div>SSO Conectados</div><div class="tm-sub">Acceso directo &middot; prevsis.com</div></div>
+          </a>
+          <a class="tools-menu-item tm-sub-item" href="https://forms.office.com/r/t3sw5N9dDj" target="_blank" rel="noopener" onclick="toolsMenuClose()">
+            <span class="tm-icon">&#128095;</span>
+            <div><div>Calzado</div><div class="tm-sub">Formulario SSO &middot; Microsoft Forms</div></div>
+          </a>
+          <a class="tools-menu-item tm-sub-item" href="https://forms.office.com/r/QZLs7Tk9K9" target="_blank" rel="noopener" onclick="toolsMenuClose()">
+            <span class="tm-icon">&#128065;</span>
+            <div><div>Observaciones Conductas</div><div class="tm-sub">Formulario SSO &middot; Microsoft Forms</div></div>
+          </a>
+          <a class="tools-menu-item tm-sub-item" href="https://forms.office.com/r/V85G3FcmiH" target="_blank" rel="noopener" onclick="toolsMenuClose()">
+            <span class="tm-icon">&#9888;</span>
+            <div><div>Condiciones</div><div class="tm-sub">Formulario SSO &middot; Microsoft Forms</div></div>
+          </a>
+          <a class="tools-menu-item tm-sub-item" href="https://forms.office.com/r/ciz9r2i0HF" target="_blank" rel="noopener" onclick="toolsMenuClose()">
+            <span class="tm-icon">&#128203;</span>
+            <div><div>Acciones Subestándar</div><div class="tm-sub">Jefatura &middot; Microsoft Forms</div></div>
+          </a>
+        </div>
         <a class="tools-menu-item" href="https://kronos.scm-cloud.cl/auth" target="_blank" rel="noopener" onclick="toolsMenuClose()">
           <span class="tm-icon">&#128336;</span>
           <div><div>Kronos</div><div class="tm-sub">Horarios y asistencia &middot; scm-cloud</div></div>
@@ -227,7 +258,7 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.08</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.09</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -267,7 +298,7 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.08</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.09</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -4893,6 +4924,13 @@ function toolsMenuToggle(e) {
 function toolsMenuClose() {
   var m = document.getElementById('tools-menu');
   if (m) m.style.display = 'none';
+}
+function toolsSubToggle(el) {
+  var body = el.nextElementSibling;
+  var arr = el.querySelector('.tm-arr');
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  arr.className = 'tm-arr' + (open ? '' : ' open');
 }
 document.addEventListener('click', function(e) {
   if (!e.target.closest('#tools-menu') && !e.target.closest('.tools-btn')) toolsMenuClose();
