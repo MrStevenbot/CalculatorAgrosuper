@@ -43,7 +43,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .tools-menu-item .tm-sub{font-size:10px;color:#506480;margin-top:1px}
 .kgh-badge{background:linear-gradient(135deg,#1a0005,#2d000d);padding:5px 10px;border-radius:20px;color:#FF6B8A;font-size:11px;font-weight:700;white-space:nowrap;border:1px solid #FF003C50;box-shadow:0 0 10px #FF003C30}
 .tabs{display:flex;border-top:1px solid #ffffff08;margin:0 -16px;padding:0 4px}
-.tab{flex:1;background:none;border:none;padding:10px 2px 9px;font-size:12px;font-weight:600;color:#2a5a7a;cursor:pointer;border-bottom:2.5px solid transparent;font-family:inherit;letter-spacing:.1px;transition:color .15s}
+.tab{flex:1;background:none;border:none;padding:8px 2px 7px;font-size:17px;font-weight:600;color:#2a5a7a;cursor:pointer;border-bottom:2.5px solid transparent;font-family:inherit;transition:color .15s}
 .tab.on{color:#FFD060;border-bottom-color:#FFD060;text-shadow:0 0 10px #FFD060aa}
 .body{padding:14px 14px 90px}
 .srel{position:relative;margin-bottom:10px}
@@ -193,7 +193,7 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.06 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.08 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -227,7 +227,7 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.06</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.08</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -267,7 +267,7 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.06</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.08</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -276,12 +276,12 @@ details[open] .fc-arr{display:inline-block;transform:rotate(180deg)}
 
     </div>
     <div class="tabs">
-      <button class="tab" id="tab-calc" onclick="showTab('calc')">Calculadora</button>
-      <button class="tab" id="tab-bascalc" onclick="showTab('bascalc')">&#177; Calc</button>
-      <button class="tab on" id="tab-hist" onclick="showTab('hist')">Programa Diario</button>
-      <button class="tab" id="tab-catalog" onclick="showTab('catalog')">Cat&#225;logo</button>
-      <button class="tab" id="tab-tiempos" onclick="showTab('tiempos')">&#9201; T.Perdidos</button>
-      <button class="tab" id="tab-bitacora" onclick="showTab('bitacora')">&#128214; Bit&#225;cora</button>
+      <button class="tab" id="tab-calc" onclick="showTab('calc')">&#8853;</button>
+      <button class="tab" id="tab-bascalc" onclick="showTab('bascalc')">&#177;</button>
+      <button class="tab on" id="tab-hist" onclick="showTab('hist')">&#128200;</button>
+      <button class="tab" id="tab-catalog" onclick="showTab('catalog')">&#8801;</button>
+      <button class="tab" id="tab-tiempos" onclick="showTab('tiempos')">&#9201;</button>
+      <button class="tab" id="tab-bitacora" onclick="showTab('bitacora')">&#128214;</button>
     </div>
   </div>
 
@@ -5411,26 +5411,113 @@ function _btRenderEntries(){
   if(!cont)return;
   if(!list.length){cont.innerHTML='<div style="text-align:center;color:#4a6a8a;padding:40px 0;font-size:13px">Sin registros aún</div>';return;}
   cont.innerHTML=list.map(function(e){
-    var itemsHtml=Object.keys(e.items||{}).map(function(k){
-      var it=e.items[k];
-      var badge=it.si?'<span style="background:#002200;color:#00FF7F;border:1px solid #00FF7F30;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;flex-shrink:0">SI</span>'
-        :it.no?'<span style="background:#1a0008;color:#FF4D6D;border:1px solid #FF003C30;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;flex-shrink:0">NO</span>':'';
+    var itemsHtml=BT_ITEMS.map(function(it){
+      var saved=(e.items||{})[it.key]||{};
+      var badge=saved.si?'<span style="background:#002200;color:#00FF7F;border:1px solid #00FF7F30;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;flex-shrink:0">SI</span>'
+        :saved.no?'<span style="background:#1a0008;color:#FF4D6D;border:1px solid #FF003C30;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:800;flex-shrink:0">NO</span>':'<span style="color:#2a4a6a;font-size:10px;flex-shrink:0">—</span>';
       return '<div style="padding:5px 0;border-bottom:1px solid #0a1828;display:flex;gap:8px;align-items:flex-start">'
         +'<div style="flex:1"><div style="font-size:11px;color:#8aa8c8;font-weight:600">'+it.label+'</div>'
-        +(it.obs?'<div style="font-size:11px;color:#00E5FFcc;margin-top:2px">'+it.obs+'</div>':'')+'</div>'+badge+'</div>';
+        +(saved.obs?'<div style="font-size:11px;color:#00E5FFcc;margin-top:2px">'+saved.obs+'</div>':'')+'</div>'+badge+'</div>';
     }).join('');
-    var hasAlert=Object.keys(e.items||{}).some(function(k){return e.items[k].obs&&e.items[k].obs.length>0;});
-    return '<div class="bt-entry-card" onclick="var b=this.querySelector(\'.bt-body\');b.style.display=b.style.display===\'none\'?\'\':\'none\'">'
-      +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+    var hasAlert=BT_ITEMS.some(function(it){var s=(e.items||{})[it.key]||{};return s.obs&&s.obs.length>0;});
+    return '<div class="bt-entry-card" data-btid="'+e._id+'">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer" onclick="var b=this.closest(\'.bt-entry-card\').querySelector(\'.bt-body\');b.style.display=b.style.display===\'none\'?\'\':\'none\'">'
       +'<div><span style="color:#FFD060;font-weight:800;font-size:14px">'+e.area+'</span>'
       +' <span style="background:linear-gradient(135deg,#001a3d,#002a5c);color:#00E5FF;border:1px solid #00E5FF40;border-radius:5px;padding:1px 7px;font-size:11px;font-weight:700">'+e.turno+'</span>'
       +(hasAlert?' <span style="color:#FFB300;font-size:11px">&#9888;</span>':'')
       +'<div style="color:#8aa8c8;font-size:12px;margin-top:3px;font-weight:600">'+e.jefe+'</div></div>'
-      +'<div style="text-align:right;font-size:10px;color:#4a6a8a;flex-shrink:0">'+e.fecha+'<br>'+e.hora+'</div>'
+      +'<div style="text-align:right;font-size:10px;color:#4a6a8a;flex-shrink:0">'+e.fecha+'<br>'+e.hora+'<br><span style="color:#1a3a5a">&#9660;</span></div>'
       +'</div>'
-      +'<div class="bt-body" style="display:none;margin-top:10px">'+itemsHtml+'</div>'
+      +'<div class="bt-body" style="display:none;margin-top:10px">'
+      +itemsHtml
+      +'<div style="display:flex;gap:6px;margin-top:12px" onclick="event.stopPropagation()">'
+      +'<button onclick="btEditEntry(\''+e._id+'\',event)" style="flex:1;padding:9px;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF40;border-radius:9px;color:#00E5FF;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">&#9998; Editar</button>'
+      +'<button onclick="btDeleteEntry(\''+e._id+'\',event)" style="padding:9px 14px;background:linear-gradient(135deg,#1a0008,#2d000f);border:1px solid #FF003C40;border-radius:9px;color:#FF4D6D;font-size:14px;cursor:pointer;font-family:inherit">&#128465;</button>'
+      +'</div>'
+      +'</div>'
       +'</div>';
   }).join('');
+}
+
+function btEditEntry(id,evt){
+  evt.stopPropagation();
+  var entry=_btEntries.find(function(e){return e._id===id;});
+  if(!entry)return;
+  var card=document.querySelector('[data-btid="'+id+'"]');
+  var body=card.querySelector('.bt-body');
+  var areas=['IQF','Calibrado','Verticales','Granel','Palletizado','Puente'];
+  var turnos=['T1','T2','T3','Puente'];
+  var html='<div onclick="event.stopPropagation()">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+    +'<div><div style="font-size:10px;color:#4a6a8a;font-weight:700;margin-bottom:4px">ÁREA</div>'
+    +'<select id="bte-area-'+id+'" class="bt-select">'+areas.map(function(a){return'<option'+(a===entry.area?' selected':'')+'>'+a+'</option>';}).join('')+'</select></div>'
+    +'<div><div style="font-size:10px;color:#4a6a8a;font-weight:700;margin-bottom:4px">TURNO</div>'
+    +'<select id="bte-turno-'+id+'" class="bt-select">'+turnos.map(function(t){return'<option'+(t===entry.turno?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div></div>'
+    +'<div style="margin-bottom:10px"><div style="font-size:10px;color:#4a6a8a;font-weight:700;margin-bottom:4px">JEFE DE LÍNEA</div>'
+    +'<input id="bte-jefe-'+id+'" class="bt-input" value="'+(entry.jefe||'').replace(/"/g,'&quot;')+'"></div>'
+    +BT_ITEMS.map(function(it){
+      var s=(entry.items||{})[it.key]||{};
+      return '<div class="bt-item" style="margin-bottom:6px">'
+        +'<div class="bt-item-header"><div style="flex:1"><div class="bt-item-label">'+it.label+'</div>'
+        +'<div class="bt-item-desc">'+it.desc+'</div></div>'
+        +'<div class="bt-toggle-group">'
+        +'<button class="bt-toggle'+(s.si?' on-si':'')+'" id="bte-si-'+id+'-'+it.key+'" onclick="btEditToggle(\''+id+'\',\''+it.key+'\',\'si\')">SI</button>'
+        +'<button class="bt-toggle'+(s.no?' on-no':'')+'" id="bte-no-'+id+'-'+it.key+'" onclick="btEditToggle(\''+id+'\',\''+it.key+'\',\'no\')">NO</button>'
+        +'</div></div>'
+        +'<textarea class="bt-obs" id="bte-obs-'+id+'-'+it.key+'" placeholder="Observaciones...">'+(s.obs||'')+'</textarea>'
+        +'</div>';
+    }).join('')
+    +'<div style="display:flex;gap:8px;margin-top:10px">'
+    +'<button id="bte-save-'+id+'" onclick="btSaveEdit(\''+id+'\')" style="flex:1;padding:11px;background:linear-gradient(135deg,#002a00,#005500);border:1px solid #00FF7F40;border-radius:10px;color:#00FF7F;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Guardar cambios</button>'
+    +'<button onclick="btCancelEdit(\''+id+'\')" style="padding:11px 16px;background:linear-gradient(135deg,#030d1c,#051530);border:1px solid #0d2a50;border-radius:10px;color:#4a6a8a;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Cancelar</button>'
+    +'</div></div>';
+  body.innerHTML=html;
+  body.style.display='';
+}
+
+function btEditToggle(id,key,val){
+  var si=document.getElementById('bte-si-'+id+'-'+key);
+  var no=document.getElementById('bte-no-'+id+'-'+key);
+  if(val==='si'){si.className='bt-toggle on-si';no.className='bt-toggle';}
+  else{no.className='bt-toggle on-no';si.className='bt-toggle';}
+}
+
+function btSaveEdit(id){
+  var entry=_btEntries.find(function(e){return e._id===id;});
+  if(!entry)return;
+  var area=document.getElementById('bte-area-'+id).value;
+  var turno=document.getElementById('bte-turno-'+id).value;
+  var jefe=document.getElementById('bte-jefe-'+id).value.trim();
+  var items={};
+  BT_ITEMS.forEach(function(it){
+    var si=document.getElementById('bte-si-'+id+'-'+it.key).className.indexOf('on-si')>=0;
+    var no=document.getElementById('bte-no-'+id+'-'+it.key).className.indexOf('on-no')>=0;
+    var obs=document.getElementById('bte-obs-'+id+'-'+it.key).value.trim();
+    items[it.key]={label:it.label,si:si,no:no,obs:obs};
+  });
+  var updated={area:area,turno:turno,jefe:jefe,fecha:entry.fecha,hora:entry.hora,timestamp:entry.timestamp,items:items};
+  var btn=document.getElementById('bte-save-'+id);
+  btn.textContent='Guardando...';btn.disabled=true;
+  fetch(BT_URL+'/'+id+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(updated)})
+    .then(function(){_btLoadEntries();})
+    .catch(function(){btn.textContent='Sin conexión';btn.disabled=false;});
+}
+
+function btCancelEdit(id){
+  var idx=_btEntries.findIndex(function(e){return e._id===id;});
+  _btRenderEntries();
+  if(idx>=0){
+    var card=document.querySelector('[data-btid="'+id+'"]');
+    if(card)card.querySelector('.bt-body').style.display='';
+  }
+}
+
+function btDeleteEntry(id,evt){
+  evt.stopPropagation();
+  if(!confirm('¿Eliminar este registro de bitácora?'))return;
+  fetch(BT_URL+'/'+id+'.json',{method:'DELETE'})
+    .then(function(){_btLoadEntries();})
+    .catch(function(){alert('Sin conexión — no se pudo eliminar');});
 }
 // ===================== FIN BITÁCORA =====================
 
