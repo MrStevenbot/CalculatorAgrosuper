@@ -217,7 +217,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.10 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.11 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -904,7 +904,13 @@ function _scrollTo(y){
   document.documentElement.scrollTop=y;
   document.body.scrollTop=y;
 }
+function _hideOverlay(){
+  var _ld=document.getElementById('app-loading');
+  if(_ld&&_ld.style.display!=='none'){_ld.style.opacity='0';setTimeout(function(){_ld.style.display='none';},250);}
+}
 function showTab(tab){
+  // Ocultar overlay PRIMERO — antes de cualquier código que pueda fallar
+  _hideOverlay();
   // Guardar scroll actual
   _tabScroll[currentTab]=window.scrollY||document.documentElement.scrollTop||0;
   currentTab=tab;
@@ -922,16 +928,14 @@ function showTab(tab){
   });
   // Scroll síncrono inmediato — antes de que el navegador pinte
   _scrollTo(savedPos);
-  // Renders dinámicos
-  if(tab==='catalog')renderCatalog();
-  if(tab==='hist'){renderHist();histTurnoInit();histLineasRender();}
-  if(tab==='tiempos'){tpInit();}
-  if(tab==='bitacora'){btInit();}
-  if(tab==='calc')_calcPedidoDropUpdate();
+  // Renders dinámicos con try/catch para evitar que un error congele la app
+  try{if(tab==='catalog')renderCatalog();}catch(e){}
+  try{if(tab==='hist'){renderHist();histTurnoInit();histLineasRender();}}catch(e){}
+  try{if(tab==='tiempos'){tpInit();}}catch(e){}
+  try{if(tab==='bitacora'){btInit();}}catch(e){}
+  try{if(tab==='calc')_calcPedidoDropUpdate();}catch(e){}
   try{localStorage.setItem('ag_last_tab',tab);}catch(e){}
-  _updateCatTopBtn();
-  var _ld=document.getElementById('app-loading');
-  if(_ld&&_ld.style.display!=='none'){_ld.style.opacity='0';setTimeout(function(){_ld.style.display='none';},250);}
+  try{_updateCatTopBtn();}catch(e){}
   // Segundo ajuste tras el render (sin delay visible)
   requestAnimationFrame(function(){
     _scrollTo(savedPos);
@@ -4428,6 +4432,8 @@ function _restoreCalcState(){
   showTab(lastTab);
 }
 setTimeout(_restoreCalcState,0);
+// Failsafe: si en 4s el overlay no desapareció, forzar ocultarlo
+setTimeout(_hideOverlay,4000);
 
 document.addEventListener('click',function(e){
   var drop=document.getElementById('dropdown');
