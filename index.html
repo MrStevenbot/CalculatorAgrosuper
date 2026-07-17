@@ -218,7 +218,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.19 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.20 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -275,7 +275,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.19</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.20</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -315,7 +315,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.19</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.20</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -680,6 +680,25 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <input type="file" accept="image/*" capture="environment" id="pz-foto-cam" style="display:none" onchange="pzProcesarFoto(this)">
         <input type="file" accept="image/*" id="pz-foto-gal" style="display:none" onchange="pzProcesarFoto(this)">
         <div id="pz-foto-status" style="display:none;font-size:12px;color:#8BA4C8;text-align:center;padding:9px 10px;margin-bottom:10px;background:#050810;border-radius:8px;border:1px solid #0c2040"></div>
+
+        <!-- Recortador de foto (opcional, antes del OCR) -->
+        <div id="pz-crop-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#000814f2;flex-direction:column;align-items:center;justify-content:center;padding:14px">
+          <div style="font-size:12px;color:#00E5FF;font-weight:700;margin-bottom:10px;text-align:center;padding:0 10px">Ajusta el recuadro sobre la leyenda de % y OZ (opcional, mejora la lectura)</div>
+          <div id="pz-crop-stage" style="position:relative;max-width:100%;max-height:60vh;overflow:hidden;border-radius:8px">
+            <img id="pz-crop-img" style="display:block;max-width:100%;max-height:60vh;user-select:none;pointer-events:none">
+            <div id="pz-crop-rect" style="position:absolute;border:2px solid #00FF7F;background:rgba(0,255,127,0.10);box-shadow:0 0 0 9999px rgba(0,8,20,0.72);touch-action:none">
+              <div class="pz-crop-handle" data-h="tl" style="position:absolute;left:-13px;top:-13px;width:26px;height:26px;background:#00FF7F;border-radius:50%;box-shadow:0 0 8px #00FF7F80;touch-action:none"></div>
+              <div class="pz-crop-handle" data-h="tr" style="position:absolute;right:-13px;top:-13px;width:26px;height:26px;background:#00FF7F;border-radius:50%;box-shadow:0 0 8px #00FF7F80;touch-action:none"></div>
+              <div class="pz-crop-handle" data-h="bl" style="position:absolute;left:-13px;bottom:-13px;width:26px;height:26px;background:#00FF7F;border-radius:50%;box-shadow:0 0 8px #00FF7F80;touch-action:none"></div>
+              <div class="pz-crop-handle" data-h="br" style="position:absolute;right:-13px;bottom:-13px;width:26px;height:26px;background:#00FF7F;border-radius:50%;box-shadow:0 0 8px #00FF7F80;touch-action:none"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;width:100%;max-width:420px">
+            <button onclick="_pzCropSkip()" style="flex:1;background:#0a1020;border:1px solid #0c2040;border-radius:10px;padding:13px;color:#8BA4C8;font-size:13px;font-weight:800;font-family:inherit">Foto completa</button>
+            <button onclick="_pzCropConfirm()" style="flex:1.3;background:linear-gradient(135deg,#002a00,#005500);border:1px solid #00FF7F40;border-radius:10px;padding:13px;color:#00FF7F;font-size:13px;font-weight:800;font-family:inherit;text-shadow:0 0 8px #00FF7F60">&#10003; Recortar y leer</button>
+          </div>
+          <button onclick="_pzCropCancel()" style="margin-top:10px;background:none;border:none;color:#FF4D6D;font-size:12px;font-weight:700;font-family:inherit;padding:6px">Cancelar</button>
+        </div>
 
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <span style="font-size:9px;font-weight:700;color:#8BA4C8;text-transform:uppercase;letter-spacing:.5px">O ingresa manualmente</span>
@@ -5918,7 +5937,7 @@ function _binarizeCanvasOtsu(canvas){
   ctx.putImageData(imgData,0,0);
 }
 
-function pzMakeCanvas(img,W,H,rotateDeg){
+function pzMakeCanvas(img,W,H,rotateDeg,srcRect){
   var canvas=document.createElement('canvas');
   var cw=W, ch=H;
   if(rotateDeg===90||rotateDeg===270){cw=H;ch=W;}
@@ -5935,7 +5954,11 @@ function pzMakeCanvas(img,W,H,rotateDeg){
     ctx.translate(0,ch);
     ctx.rotate(-Math.PI/2);
   }
-  ctx.drawImage(img,0,0,W,H);
+  if(srcRect){
+    ctx.drawImage(img,srcRect.x,srcRect.y,srcRect.w,srcRect.h,0,0,W,H);
+  }else{
+    ctx.drawImage(img,0,0,W,H);
+  }
   _binarizeCanvasOtsu(canvas);
   return canvas;
 }
@@ -5965,18 +5988,137 @@ async function pzOcrPass(worker,canvas,label){
 async function pzProcesarFoto(input){
   if(!input.files||!input.files[0])return;
   var file=input.files[0];
-  input.value='';
+  var status=document.getElementById('pz-foto-status');
+  function setMsg(t){status.style.display='';status.innerHTML=t;}
+  setMsg('&#128247; Preparando imagen...');
+  try{
+    var imgUrl=URL.createObjectURL(file);
+    var img=new Image();
+    await new Promise(function(res,rej){img.onload=res;img.onerror=rej;img.src=imgUrl;});
+    status.style.display='none';
+    _pzOpenCropper(img,imgUrl,input);
+  }catch(e){
+    input.value='';
+    setMsg('&#10060; No se pudo cargar la imagen.');
+  }
+}
+
+// ===== Recorte manual antes de OCR (opcional, mejora precisión al enfocar solo la leyenda) =====
+var _pzCropImg=null,_pzCropImgUrl=null,_pzCropInputEl=null;
+var _pzCrop={x:0,y:0,w:0,h:0};
+
+function _pzOpenCropper(img,imgUrl,inputEl){
+  _pzCropImg=img; _pzCropImgUrl=imgUrl; _pzCropInputEl=inputEl;
+  var overlay=document.getElementById('pz-crop-overlay');
+  var imEl=document.getElementById('pz-crop-img');
+  imEl.src=imgUrl;
+  overlay.style.display='flex';
+  requestAnimationFrame(function(){
+    var iw=imEl.clientWidth, ih=imEl.clientHeight;
+    var stage=document.getElementById('pz-crop-stage');
+    stage.style.width=iw+'px'; stage.style.height=ih+'px';
+    var w=iw*0.62, h=ih*0.55;
+    _pzCrop={x:(iw-w)/2,y:(ih-h)*0.35,w:w,h:h};
+    _pzCropRender();
+    _pzCropAttachHandlers();
+  });
+}
+
+function _pzCropRender(){
+  var r=document.getElementById('pz-crop-rect');
+  r.style.left=_pzCrop.x+'px'; r.style.top=_pzCrop.y+'px';
+  r.style.width=_pzCrop.w+'px'; r.style.height=_pzCrop.h+'px';
+}
+
+function _pzCropAttachHandlers(){
+  var rect=document.getElementById('pz-crop-rect');
+  if(rect._pzBound)return;
+  rect._pzBound=true;
+  var mode=null,startX=0,startY=0,startCrop=null;
+  function begin(e,m){
+    mode=m; startX=e.clientX; startY=e.clientY;
+    startCrop={x:_pzCrop.x,y:_pzCrop.y,w:_pzCrop.w,h:_pzCrop.h};
+    if(e.target.setPointerCapture)try{e.target.setPointerCapture(e.pointerId);}catch(err){}
+    e.stopPropagation(); e.preventDefault();
+  }
+  rect.addEventListener('pointerdown',function(e){
+    if(e.target.classList.contains('pz-crop-handle'))return;
+    begin(e,'move');
+  });
+  Array.prototype.forEach.call(rect.querySelectorAll('.pz-crop-handle'),function(h){
+    h.addEventListener('pointerdown',function(e){begin(e,h.dataset.h);});
+  });
+  rect.addEventListener('pointermove',function(e){
+    if(!mode)return;
+    var dx=e.clientX-startX, dy=e.clientY-startY;
+    var stage=document.getElementById('pz-crop-stage');
+    var sw=stage.clientWidth, sh=stage.clientHeight;
+    var nx=_pzCrop.x,ny=_pzCrop.y,nw=_pzCrop.w,nh=_pzCrop.h;
+    if(mode==='move'){nx=startCrop.x+dx; ny=startCrop.y+dy;}
+    else if(mode==='tl'){nx=startCrop.x+dx; ny=startCrop.y+dy; nw=startCrop.w-dx; nh=startCrop.h-dy;}
+    else if(mode==='tr'){ny=startCrop.y+dy; nw=startCrop.w+dx; nh=startCrop.h-dy;}
+    else if(mode==='bl'){nx=startCrop.x+dx; nw=startCrop.w-dx; nh=startCrop.h+dy;}
+    else if(mode==='br'){nw=startCrop.w+dx; nh=startCrop.h+dy;}
+    if(nw<40){if(mode==='tl'||mode==='bl')nx=startCrop.x+startCrop.w-40; nw=40;}
+    if(nh<40){if(mode==='tl'||mode==='tr')ny=startCrop.y+startCrop.h-40; nh=40;}
+    if(nx<0)nx=0; if(ny<0)ny=0;
+    if(nx+nw>sw)nx=sw-nw;
+    if(ny+nh>sh)ny=sh-nh;
+    _pzCrop={x:nx,y:ny,w:nw,h:nh};
+    _pzCropRender();
+    e.preventDefault();
+  });
+  rect.addEventListener('pointerup',function(){mode=null;});
+  rect.addEventListener('pointercancel',function(){mode=null;});
+}
+
+function _pzCropNaturalRect(){
+  var imEl=document.getElementById('pz-crop-img');
+  var scaleX=_pzCropImg.naturalWidth/imEl.clientWidth;
+  var scaleY=_pzCropImg.naturalHeight/imEl.clientHeight;
+  return {
+    x:Math.max(0,Math.round(_pzCrop.x*scaleX)),
+    y:Math.max(0,Math.round(_pzCrop.y*scaleY)),
+    w:Math.round(_pzCrop.w*scaleX),
+    h:Math.round(_pzCrop.h*scaleY)
+  };
+}
+
+function _pzCropClose(){
+  document.getElementById('pz-crop-overlay').style.display='none';
+}
+
+function _pzCropConfirm(){
+  var r=_pzCropNaturalRect();
+  var img=_pzCropImg, imgUrl=_pzCropImgUrl, inputEl=_pzCropInputEl;
+  _pzCropClose();
+  _pzRunOcr(img,imgUrl,inputEl,r);
+}
+
+function _pzCropSkip(){
+  var img=_pzCropImg, imgUrl=_pzCropImgUrl, inputEl=_pzCropInputEl;
+  _pzCropClose();
+  _pzRunOcr(img,imgUrl,inputEl,null);
+}
+
+function _pzCropCancel(){
+  if(_pzCropImgUrl)URL.revokeObjectURL(_pzCropImgUrl);
+  if(_pzCropInputEl)_pzCropInputEl.value='';
+  _pzCropClose();
+}
+
+async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
+  if(inputEl)inputEl.value='';
   var status=document.getElementById('pz-foto-status');
   function setMsg(t){status.style.display='';status.innerHTML=t;}
   setMsg('&#128247; Preparando imagen...');
   var worker=null;
   try{
-    var imgUrl=URL.createObjectURL(file);
-    var img=new Image();
-    await new Promise(function(res,rej){img.onload=res;img.onerror=rej;img.src=imgUrl;});
+    var sx=srcRect?srcRect.x:0, sy=srcRect?srcRect.y:0;
+    var sw=srcRect?srcRect.w:img.width, sh=srcRect?srcRect.h:img.height;
     var MAX=3000;
-    var scale=Math.min(MAX/img.width,MAX/img.height,3);
-    var W=Math.round(img.width*scale), H=Math.round(img.height*scale);
+    var scale=Math.min(MAX/sw,MAX/sh,3);
+    var W=Math.round(sw*scale), H=Math.round(sh*scale);
 
     setMsg('&#9889; Cargando OCR...');
     if(!window.Tesseract){
@@ -6007,7 +6149,7 @@ async function pzProcesarFoto(input){
       var deg=ANGLES[ai];
       progressLabel=deg===0?'':(' ('+deg+'&#176;)');
       setMsg(deg===0?'&#9889; Leyendo distribuci&#243;n...':('&#9889; Probando imagen rotada '+deg+'&#176;...'));
-      var canvasR=pzMakeCanvas(img,W,H,deg);
+      var canvasR=pzMakeCanvas(img,W,H,deg,srcRect?{x:sx,y:sy,w:sw,h:sh}:null);
       var r=await pzOcrPass(worker,canvasR,progressLabel);
       if(r.count>best.count)best=r;
       if(best.count>=maxCount)break;
