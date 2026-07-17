@@ -5937,13 +5937,15 @@ function _binarizeCanvasOtsu(canvas){
   ctx.putImageData(imgData,0,0);
 }
 
-function pzMakeCanvas(img,W,H,rotateDeg,srcRect){
+function pzMakeCanvas(img,W,H,rotateDeg,srcRect,light){
   var canvas=document.createElement('canvas');
   var cw=W, ch=H;
   if(rotateDeg===90||rotateDeg===270){cw=H;ch=W;}
   canvas.width=cw; canvas.height=ch;
   var ctx=canvas.getContext('2d');
-  ctx.filter='blur(0.5px) grayscale(1)';
+  // Recorte manual = foto ya limpia y enfocada: blur+Otsu (pensados para fotos completas
+  // con muaré/ruido) borran detalles finos como comas decimales o la barra de la "Z" — se omiten
+  ctx.filter=light?'grayscale(1)':'blur(0.5px) grayscale(1)';
   if(rotateDeg===90){
     ctx.translate(cw,0);
     ctx.rotate(Math.PI/2);
@@ -5959,14 +5961,14 @@ function pzMakeCanvas(img,W,H,rotateDeg,srcRect){
   }else{
     ctx.drawImage(img,0,0,W,H);
   }
-  _binarizeCanvasOtsu(canvas);
+  if(!light)_binarizeCanvasOtsu(canvas);
   return canvas;
 }
 
 function _pzParseText(flat){
   var found={}, count=0;
   PZ_OZ.forEach(function(oz){
-    var re=new RegExp('\\b'+oz+'\\s*[O0][Z7]\\b[^%\\d]{0,18}?(\\d{1,3}[.,]\\d{1,2})\\s*%','i');
+    var re=new RegExp('\\b'+oz+'\\s*[O0][Z72]\\b[^%\\d]{0,18}?(\\d{1,3}[.,]\\d{1,2})\\s*%','i');
     var m=flat.match(re);
     if(m){found[oz]=parseFloat(m[1].replace(',','.'));count++;}
   });
@@ -6116,7 +6118,9 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
   try{
     var sx=srcRect?srcRect.x:0, sy=srcRect?srcRect.y:0;
     var sw=srcRect?srcRect.w:img.width, sh=srcRect?srcRect.h:img.height;
-    var MAX=3000;
+    // Un recorte manual ya es una regi&#243;n peque&#241;a y enfocada: permitir m&#225;s resoluci&#243;n
+    // (menos p&#233;rdida de detalle en comas/letras) sin disparar el tiempo de OCR
+    var MAX=srcRect?4500:3000;
     var scale=Math.min(MAX/sw,MAX/sh,3);
     var W=Math.round(sw*scale), H=Math.round(sh*scale);
 
@@ -6149,7 +6153,7 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
       var deg=ANGLES[ai];
       progressLabel=deg===0?'':(' ('+deg+'&#176;)');
       setMsg(deg===0?'&#9889; Leyendo distribuci&#243;n...':('&#9889; Probando imagen rotada '+deg+'&#176;...'));
-      var canvasR=pzMakeCanvas(img,W,H,deg,srcRect?{x:sx,y:sy,w:sw,h:sh}:null);
+      var canvasR=pzMakeCanvas(img,W,H,deg,srcRect?{x:sx,y:sy,w:sw,h:sh}:null,!!srcRect);
       var r=await pzOcrPass(worker,canvasR,progressLabel);
       if(r.count>best.count)best=r;
       if(best.count>=maxCount)break;
