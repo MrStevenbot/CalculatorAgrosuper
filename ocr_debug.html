@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diagnóstico OCR — Control App</title>
+<style>
+body{background:#00030c;color:#cfe3ff;font-family:system-ui,sans-serif;margin:0;padding:14px;font-size:14px}
+h2{color:#00E5FF;font-size:16px;margin:0 0 12px}
+button,label.btn{display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px;margin:8px 0;border-radius:12px;border:1px solid #00E5FF40;background:linear-gradient(135deg,#002a00,#005500);color:#00FF7F;font-size:15px;font-weight:700}
+#reset{background:linear-gradient(135deg,#1a0008,#2d000f);border-color:#FF003C55;color:#FF4D6D}
+#out{background:#050d1c;border:1px solid #0c2040;border-radius:10px;padding:10px;margin-top:10px;white-space:pre-wrap;word-break:break-word;font-size:12px;line-height:1.5}
+#res{font-size:18px;color:#FFD060;font-weight:800;margin:8px 0}
+canvas{max-width:100%;border:1px solid #0c2040;border-radius:8px;margin-top:10px}
+.lbl{color:#00E5FF;font-weight:700;margin-top:10px}
+</style>
+</head>
+<body>
+<h2>&#128295; Diagnóstico OCR — Control App</h2>
+<label class="btn">&#128444;&#65039; Elegir foto y analizar<input type="file" accept="image/*" style="display:none" onchange="run(this)"></label>
+<button id="reset" onclick="resetCache()">&#128465; Borrar caché OCR de este sitio</button>
+<div id="res">—</div>
+<div id="out">Elige la foto del gráfico de torta (la misma de siempre). La página corre la receta B (foto completa) exacta de la app y muestra todo lo que ve el OCR.</div>
+<div class="lbl">Imagen que ve el OCR:</div>
+<canvas id="cv" width="10" height="10"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js"></script>
+<script>
+var PZ_OZ=[4,5,6,7,8,9,10];
+
+function _otsuThreshold(gray){
+  var hist=new Array(256).fill(0), total=gray.length;
+  for(var i=0;i<gray.length;i++)hist[gray[i]]++;
+  var sum=0;
+  for(var t=0;t<256;t++)sum+=t*hist[t];
+  var sumB=0,wB=0,wF=0,maxVar=-1,threshold=128;
+  for(var t=0;t<256;t++){
+    wB+=hist[t];
+    if(wB===0)continue;
+    wF=total-wB;
+    if(wF===0)break;
+    sumB+=t*hist[t];
+    var mB=sumB/wB, mF=(sum-sumB)/wF;
+    var v=wB*wF*(mB-mF)*(mB-mF);
+    if(v>maxVar){maxVar=v;threshold=t;}
+  }
+  return threshold;
+}
+
+function _binarizeCanvasOtsu(canvas){
+  var ctx=canvas.getContext('2d');
+  var imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+  var d=imgData.data;
+  var gray=new Uint8Array(d.length/4);
+  for(var i=0,j=0;i<d.length;i+=4,j++)gray[j]=d[i]; // ya viene en grises (R=G=B)
+  var thr=_otsuThreshold(gray);
+  for(var i=0;i<d.length;i+=4){
+    var v=d[i]>thr?255:0;
+    d[i]=d[i+1]=d[i+2]=v;
+  }
+  ctx.putImageData(imgData,0,0);
+}
+
+function _reconstructTextByGeometry(words){
+  if(!words||!words.length)return '';
+  var items=[];
+  words.forEach(function(w){
+    if(!w.text||!w.text.trim().length||!w.bbox)return;
+    var yc=(w.bbox.y0+w.bbox.y1)/2, h=w.bbox.y1-w.bbox.y0;
+    items.push({text:w.text,x0:w.bbox.x0,yc:yc,h:h});
+  });
+  if(!items.length)return '';
+  items.sort(function(a,b){return a.yc-b.yc;});
+  var lines=[];
+  items.forEach(function(it){
+    var best=null,bestDist=Infinity;
+    lines.forEach(function(line){
+      var dist=Math.abs(line.yc-it.yc);
+      if(dist<=line.tol&&dist<bestDist){best=line;bestDist=dist;}
+    });
+    if(best){
+      best.words.push(it);
+      best.yc=(best.yc*(best.words.length-1)+it.yc)/best.words.length;
+      best.tol=Math.max(best.tol,it.h*0.65);
+    }else{
+      lines.push({yc:it.yc,tol:it.h*0.65,words:[it]});
+    }
+  });
+  lines.sort(function(a,b){return a.yc-b.yc;});
+  return lines.map(function(line){
+    line.words.sort(function(a,b){return a.x0-b.x0;});
+    return line.words.map(function(w){return w.text;}).join(' ');
+  }).join('\n');
+}
+
+function _pzParseText(flat){
+  var found={}, count=0;
+  PZ_OZ.forEach(function(oz){
+    var re=new RegExp('\\b'+oz+'\\s*[O0][Z72]\\b[^%\\d]{0,18}?(\\d{1,3}[.,]\\d{1,2})\\s*%','i');
+    var m=flat.match(re);
+    if(m){found[oz]=parseFloat(m[1].replace(',','.'));count++;}
+  });
+  var mR=flat.match(/[Rr]echazo[^%\d]{0,18}?(\d{1,3}[.,]\d{1,2})\s*%/);
+  if(mR){found.rechazo=parseFloat(mR[1].replace(',','.'));count++;}
+  return {found:found,count:count};
+}
+
+function pzMakeCanvas(img,W,H,rotateDeg,srcRect,light){
+  var canvas=document.createElement('canvas');
+  var cw=W, ch=H;
+  if(rotateDeg===90||rotateDeg===270){cw=H;ch=W;}
+  canvas.width=cw; canvas.height=ch;
+  var ctx=canvas.getContext('2d');
+  // Recorte manual = foto ya limpia y enfocada: blur+Otsu (pensados para fotos completas
+  // con muaré/ruido) borran detalles finos como comas decimales o la barra de la "Z" — se omiten
+  ctx.filter=light?'grayscale(1)':'blur(0.5px) grayscale(1)';
+  if(rotateDeg===90){
+    ctx.translate(cw,0);
+    ctx.rotate(Math.PI/2);
+  }else if(rotateDeg===180){
+    ctx.translate(cw,ch);
+    ctx.rotate(Math.PI);
+  }else if(rotateDeg===270){
+    ctx.translate(0,ch);
+    ctx.rotate(-Math.PI/2);
+  }
+  if(srcRect){
+    ctx.drawImage(img,srcRect.x,srcRect.y,srcRect.w,srcRect.h,0,0,W,H);
+  }else{
+    ctx.drawImage(img,0,0,W,H);
+  }
+  if(!light)_binarizeCanvasOtsu(canvas);
+  return canvas;
+}
+
+function log(t){document.getElementById('out').textContent=t;}
+function setRes(t){document.getElementById('res').textContent=t;}
+
+async function run(input){
+  if(!input.files||!input.files[0])return;
+  try{
+    setRes('Cargando foto...');
+    var url=URL.createObjectURL(input.files[0]);
+    var img=new Image();
+    await new Promise(function(res,rej){img.onload=res;img.onerror=rej;img.src=url;});
+
+    // Chequeos de entorno
+    var tc=document.createElement('canvas').getContext('2d');
+    tc.filter='blur(1px)';
+    var filterOk=(tc.filter==='blur(1px)');
+
+    // Receta B foto completa EXACTA de la app v2.24+
+    var sw=img.width,sh=img.height;
+    var scale=Math.min(3000/sw,3000/sh,3,Math.sqrt(6500000/(sw*sh)));
+    var W=Math.round(sw*scale),H=Math.round(sh*scale);
+    setRes('Preprocesando '+W+'x'+H+'...');
+    var canvas=pzMakeCanvas(img,W,H,0,null,false);
+
+    // Mostrar lo que ve el OCR
+    var cv=document.getElementById('cv');
+    cv.width=canvas.width;cv.height=canvas.height;
+    cv.getContext('2d').drawImage(canvas,0,0);
+
+    setRes('Leyendo (puede tardar 1-2 min)...');
+    var worker=await Tesseract.createWorker('spa+eng',1,{logger:function(m){
+      if(m.status==='recognizing text')setRes('Leyendo... '+Math.round((m.progress||0)*100)+'%');
+      else setRes(m.status+' '+Math.round((m.progress||0)*100)+'%');
+    }});
+    await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SPARSE_TEXT});
+    var t0=Date.now();
+    var result=await worker.recognize(canvas.toDataURL('image/png'));
+    await worker.terminate();
+
+    var flat=result.data.text.replace(/[\n\r]+/g,' ');
+    var geo=_reconstructTextByGeometry(result.data.words).replace(/[\n\r]+/g,' ');
+    var rF=_pzParseText(flat);
+    var rG=geo?_pzParseText(geo):{found:{},count:-1};
+    var best=(rG.count>rF.count)?rG:rF;
+
+    setRes('Resultado: '+best.count+' de 8');
+    log(
+      'valores: '+JSON.stringify(best.found)+
+      '\nfoto: '+sw+'x'+sh+' | canvas: '+W+'x'+H+' | '+((Date.now()-t0)/1000).toFixed(1)+'s'+
+      '\nfiltro canvas soportado: '+(filterOk?'SI':'NO — ESTE ES EL PROBLEMA')+
+      '\nnavegador: '+navigator.userAgent.slice(0,80)+
+      '\n\n— TEXTO PLANO —\n'+flat.slice(0,400)+
+      '\n\n— TEXTO GEO —\n'+geo.slice(0,400)
+    );
+  }catch(e){
+    setRes('ERROR');
+    log('Error: '+e.message+'\n'+(e.stack||'').slice(0,300));
+  }
+  input.value='';
+}
+
+async function resetCache(){
+  try{
+    var names=[];
+    if(indexedDB.databases){
+      var dbs=await indexedDB.databases();
+      for(var i=0;i<dbs.length;i++){
+        names.push(dbs[i].name);
+        await new Promise(function(res){var r=indexedDB.deleteDatabase(dbs[i].name);r.onsuccess=r.onerror=r.onblocked=res;});
+      }
+    }
+    setRes('Caché borrada');
+    log('Bases borradas: '+(names.join(', ')||'ninguna encontrada')+'\nAhora toca "Elegir foto y analizar" de nuevo — el motor OCR descargará sus datos frescos (necesita internet, tarda un poco la primera vez).');
+  }catch(e){log('Error borrando caché: '+e.message);}
+}
+</script>
+</body>
+</html>
