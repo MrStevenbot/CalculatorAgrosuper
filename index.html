@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.26 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.27 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -277,7 +277,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.26</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.27</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -317,7 +317,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.26</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.27</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -6013,7 +6013,7 @@ function _binarizeCanvasOtsu(canvas){
   ctx.putImageData(imgData,0,0);
 }
 
-function pzMakeCanvas(img,W,H,rotateDeg,srcRect,light){
+function pzMakeCanvas(img,W,H,rotateDeg,srcRect,light,blurPx){
   var canvas=document.createElement('canvas');
   var cw=W, ch=H;
   if(rotateDeg===90||rotateDeg===270){cw=H;ch=W;}
@@ -6025,7 +6025,9 @@ function pzMakeCanvas(img,W,H,rotateDeg,srcRect,light){
   ctx.imageSmoothingQuality='high';
   // Recorte manual = foto ya limpia y enfocada: blur+Otsu (pensados para fotos completas
   // con muaré/ruido) borran detalles finos como comas decimales o la barra de la "Z" — se omiten
-  ctx.filter=light?'grayscale(1)':'blur(0.5px) grayscale(1)';
+  // blurPx variable: 0.5 estándar; 1.2 mata el moiré diagonal fuerte que la pasada
+  // estándar no elimina (visto on-device 2026-07-20: rayas tapaban media leyenda)
+  ctx.filter=light?'grayscale(1)':('blur('+(blurPx||0.5)+'px) grayscale(1)');
   if(rotateDeg===90){
     ctx.translate(cw,0);
     ctx.rotate(Math.PI/2);
@@ -6228,10 +6230,12 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
     // Se prueban ambas por ángulo y gana la que más valores detecte.
     // B-pesada PRIMERO: es chica en memoria y es la que gana en fotos con rejilla LCD
     // (caso real 2026-07-18: la A a resolución nativa dejó el worker tocado y el
-    // resultado de B se perdió — con B primero su resultado queda asegurado)
+    // resultado de B se perdió — con B primero su resultado queda asegurado).
+    // C = pesada con blur fuerte 1.2px: rescata fotos con moiré diagonal intenso que
+    // sobrevive al blur 0.5 (caso real on-device 2026-07-20, 4/8 → columna izquierda ilegible)
     var VARIANTS=srcRect
-      ?[{light:false,max:4500,cap:0.7},{light:true,max:4500,cap:1}]
-      :[{light:false,max:3000,cap:3}];
+      ?[{light:false,max:4500,cap:0.7,blur:0.5},{light:false,max:4500,cap:0.7,blur:1.2},{light:true,max:4500,cap:1}]
+      :[{light:false,max:3000,cap:3,blur:0.5},{light:false,max:3000,cap:3,blur:1.2}];
 
     setMsg('&#9889; Cargando OCR...');
     if(!window.Tesseract){
@@ -6275,14 +6279,15 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
         progressLabel=(deg===0?'':' ('+deg+'&#176;)')+(VARIANTS.length>1?(' &#183; pasada '+(vi+1)+'/'+VARIANTS.length):'');
         var scale=Math.min(vt.max/sw,vt.max/sh,vt.cap,Math.sqrt(PXCAP/(sw*sh)));
         var W=Math.round(sw*scale), H=Math.round(sh*scale);
-        var canvasR=pzMakeCanvas(img,W,H,deg,srcRect?{x:sx,y:sy,w:sw,h:sh}:null,vt.light);
+        var canvasR=pzMakeCanvas(img,W,H,deg,srcRect?{x:sx,y:sy,w:sw,h:sh}:null,vt.light,vt.blur);
+        var vTag=vt.light?'A':(vt.blur>0.8?'C':'B');
         try{
           var r=await _pzWithTimeout(pzOcrPass(worker,canvasR,progressLabel),OCR_TIMEOUT);
           if(r.count>best.count)best=r;
-          trace.push((vt.light?'A':'B')+deg+':'+r.count);
+          trace.push(vTag+deg+':'+r.count);
         }catch(pe){
           // Pasada colgada o worker caído: recrear el motor y seguir con la siguiente
-          trace.push((vt.light?'A':'B')+deg+':x');
+          trace.push(vTag+deg+':x');
           setMsg('&#9888; Reintentando lectura...');
           try{if(worker)await worker.terminate();}catch(e2){}
           worker=await makeWorker();
