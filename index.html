@@ -218,7 +218,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.23 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.24 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -275,7 +275,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.23</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.24</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -315,7 +315,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.23</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.24</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -6035,6 +6035,16 @@ function _pzParseText(flat){
   return {found:found,count:count};
 }
 
+// Promesa con tope de tiempo: si el worker OCR muere sin rechazar (pasa con imágenes
+// muy grandes en el celular), la promesa de recognize queda pendiente para siempre y
+// la app se pegaba en "Leyendo... 100%" — esto la rescata
+function _pzWithTimeout(promise,ms){
+  return new Promise(function(res,rej){
+    var t=setTimeout(function(){rej(new Error('OCR sin respuesta (timeout)'));},ms);
+    promise.then(function(v){clearTimeout(t);res(v);},function(e){clearTimeout(t);rej(e);});
+  });
+}
+
 async function pzOcrPass(worker,canvas,label){
   var dataUrl=canvas.toDataURL('image/png');
   var result=await worker.recognize(dataUrl);
@@ -6194,8 +6204,11 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
     //  B pesada (reduce a 0.7x + blur + Otsu): gana cuando la rejilla de píxeles del monitor
     //    domina la foto — ampliar ese tipo de foto convierte la rejilla en rayas que tapan el texto
     // Se prueban ambas por ángulo y gana la que más valores detecte.
+    // B-pesada PRIMERO: es chica en memoria y es la que gana en fotos con rejilla LCD
+    // (caso real 2026-07-18: la A a resolución nativa dejó el worker tocado y el
+    // resultado de B se perdió — con B primero su resultado queda asegurado)
     var VARIANTS=srcRect
-      ?[{light:true,max:4500,cap:1},{light:false,max:4500,cap:0.7}]
+      ?[{light:false,max:4500,cap:0.7},{light:true,max:4500,cap:1}]
       :[{light:false,max:3000,cap:3}];
 
     setMsg('&#9889; Cargando OCR...');
@@ -6212,37 +6225,64 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
     // PSM "texto disperso": mejor para leyendas en varias columnas junto a gr&#225;ficos,
     // en vez del modo p&#225;rrafo por defecto que asume texto corrido
     var progressLabel='';
-    worker=await Tesseract.createWorker('spa+eng',1,{
-      logger:function(m){
-        if(m.status==='recognizing text')
-          setMsg('&#9889; Leyendo'+progressLabel+'... '+Math.round((m.progress||0)*100)+'%');
-      }
-    });
-    await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SPARSE_TEXT});
+    async function makeWorker(){
+      var w=await Tesseract.createWorker('spa+eng',1,{
+        logger:function(m){
+          if(m.status==='recognizing text')
+            setMsg('&#9889; Leyendo'+progressLabel+'... '+Math.round((m.progress||0)*100)+'%');
+        }
+      });
+      await w.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SPARSE_TEXT});
+      return w;
+    }
+    worker=await makeWorker();
 
     var maxCount=PZ_OZ.length+1;
     var ANGLES=[0,180,90,270];
     var best={found:{},count:-1};
+    // Techo de píxeles por pasada: el wasm de Tesseract muere SIN error (promesa que
+    // nunca resuelve = app pegada en "Leyendo...") con imágenes muy grandes en el
+    // celular — pasa al recortar un área casi del tamaño de la foto completa (12MP nativos)
+    var PXCAP=6500000, OCR_TIMEOUT=90000;
+    var trace=[];
     for(var ai=0;ai<ANGLES.length&&best.count<maxCount;ai++){
       var deg=ANGLES[ai];
-      progressLabel=deg===0?'':(' ('+deg+'&#176;)');
       setMsg(deg===0?'&#9889; Leyendo distribuci&#243;n...':('&#9889; Probando imagen rotada '+deg+'&#176;...'));
       for(var vi=0;vi<VARIANTS.length;vi++){
         var vt=VARIANTS[vi];
-        var scale=Math.min(vt.max/sw,vt.max/sh,vt.cap);
+        progressLabel=(deg===0?'':' ('+deg+'&#176;)')+(VARIANTS.length>1?(' &#183; pasada '+(vi+1)+'/'+VARIANTS.length):'');
+        var scale=Math.min(vt.max/sw,vt.max/sh,vt.cap,Math.sqrt(PXCAP/(sw*sh)));
         var W=Math.round(sw*scale), H=Math.round(sh*scale);
         var canvasR=pzMakeCanvas(img,W,H,deg,srcRect?{x:sx,y:sy,w:sw,h:sh}:null,vt.light);
-        var r=await pzOcrPass(worker,canvasR,progressLabel);
-        if(r.count>best.count)best=r;
-        if(best.count>=maxCount)break;
+        try{
+          var r=await _pzWithTimeout(pzOcrPass(worker,canvasR,progressLabel),OCR_TIMEOUT);
+          if(r.count>best.count)best=r;
+          trace.push((vt.light?'A':'B')+deg+':'+r.count);
+        }catch(pe){
+          // Pasada colgada o worker caído: recrear el motor y seguir con la siguiente
+          trace.push((vt.light?'A':'B')+deg+':x');
+          setMsg('&#9888; Reintentando lectura...');
+          try{if(worker)await worker.terminate();}catch(e2){}
+          worker=await makeWorker();
+        }
+        canvasR.width=canvasR.height=0; // liberar memoria del canvas ya procesado
+        // Con 7 de 8 ya basta: no arriesgar la otra receta (la A a resolución nativa
+        // puede matar el worker por memoria) ni gastar más tiempo
+        if(best.count>=maxCount-1)break;
       }
+      // Los navegadores aplican la rotación EXIF solos (hallazgo v2.18): si a 0° ya se
+      // detectaron varios valores, la foto está derecha — saltar los otros ángulos
+      if(deg===0&&best.count>=4)break;
     }
     URL.revokeObjectURL(imgUrl);
 
     var found=best.found, count=best.count;
+    // Detalle por pasada (receta A/B + ángulo : valores detectados, x = pasada caída)
+    // — clave para diagnosticar fallas reportadas desde producción
+    var traceHtml='<br><span style="opacity:.45;font-size:10px">detalle: '+trace.join(' &#183; ')+'</span>';
 
     if(count<=0){
-      setMsg('&#10060; No se detectaron valores. Verifica que la foto est&#233; derecha y bien enfocada, o ingresa manualmente abajo.');
+      setMsg('&#10060; No se detectaron valores. Verifica que la foto est&#233; derecha y bien enfocada, o ingresa manualmente abajo.'+traceHtml);
       return;
     }
 
@@ -6254,7 +6294,7 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
     if(elr)elr.value=(found.rechazo!==undefined)?found.rechazo:'';
     pzUpdateSuma();
     pzCalcular();
-    setMsg('&#10003; '+count+' de '+maxCount+' valores detectados y recalculado &mdash; revisa y ajusta si es necesario');
+    setMsg('&#10003; '+count+' de '+maxCount+' valores detectados y recalculado &mdash; revisa y ajusta si es necesario'+traceHtml);
   }catch(e){
     setMsg('&#10060; Error: '+e.message);
   }finally{
