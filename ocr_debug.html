@@ -104,15 +104,21 @@ function _pzParseText(flat){
   return {found:found,count:count};
 }
 
-function pzMakeCanvas(img,W,H,rotateDeg,srcRect,light){
+function pzMakeCanvas(img,W,H,rotateDeg,srcRect,light,blurPx){
   var canvas=document.createElement('canvas');
   var cw=W, ch=H;
   if(rotateDeg===90||rotateDeg===270){cw=H;ch=W;}
   canvas.width=cw; canvas.height=ch;
   var ctx=canvas.getContext('2d');
+  // Reescalado de máxima calidad: el bilinear rápido por defecto acentúa el muaré
+  // de la rejilla LCD al reducir la foto
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
   // Recorte manual = foto ya limpia y enfocada: blur+Otsu (pensados para fotos completas
   // con muaré/ruido) borran detalles finos como comas decimales o la barra de la "Z" — se omiten
-  ctx.filter=light?'grayscale(1)':'blur(0.5px) grayscale(1)';
+  // blurPx variable: 0.5 estándar; 1.2 mata el moiré diagonal fuerte que la pasada
+  // estándar no elimina (visto on-device 2026-07-20: rayas tapaban media leyenda)
+  ctx.filter=light?'grayscale(1)':('blur('+(blurPx||0.5)+'px) grayscale(1)');
   if(rotateDeg===90){
     ctx.translate(cw,0);
     ctx.rotate(Math.PI/2);
@@ -148,42 +154,44 @@ async function run(input){
     tc.filter='blur(1px)';
     var filterOk=(tc.filter==='blur(1px)');
 
-    // Receta B foto completa EXACTA de la app v2.24+
+    // VARIANTES foto completa EXACTAS de la app v2.27: B blur 0.5 y C blur 1.2
     var sw=img.width,sh=img.height;
     var scale=Math.min(3000/sw,3000/sh,3,Math.sqrt(6500000/(sw*sh)));
     var W=Math.round(sw*scale),H=Math.round(sh*scale);
-    setRes('Preprocesando '+W+'x'+H+'...');
-    var canvas=pzMakeCanvas(img,W,H,0,null,false);
-
-    // Mostrar lo que ve el OCR
-    var cv=document.getElementById('cv');
-    cv.width=canvas.width;cv.height=canvas.height;
-    cv.getContext('2d').drawImage(canvas,0,0);
-
-    setRes('Leyendo (puede tardar 1-2 min)...');
+    var VARIANTS=[{tag:'B',blur:0.5},{tag:'C',blur:1.2}];
     var worker=await Tesseract.createWorker('spa+eng',1,{logger:function(m){
       if(m.status==='recognizing text')setRes('Leyendo... '+Math.round((m.progress||0)*100)+'%');
-      else setRes(m.status+' '+Math.round((m.progress||0)*100)+'%');
     }});
     await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SPARSE_TEXT});
-    var t0=Date.now();
-    var result=await worker.recognize(canvas.toDataURL('image/png'));
+    var lines=[],best={found:{},count:-1},bestCanvas=null,bestFlat='',bestGeo='';
+    for(var vi=0;vi<VARIANTS.length;vi++){
+      var vt=VARIANTS[vi];
+      setRes('Pasada '+vt.tag+' (blur '+vt.blur+')...');
+      var canvas=pzMakeCanvas(img,W,H,0,null,false,vt.blur);
+      var t0=Date.now();
+      var result=await worker.recognize(canvas.toDataURL('image/png'));
+      var flat=result.data.text.replace(/[\n\r]+/g,' ');
+      var geo=_reconstructTextByGeometry(result.data.words).replace(/[\n\r]+/g,' ');
+      var rF=_pzParseText(flat);
+      var rG=geo?_pzParseText(geo):{found:{},count:-1};
+      var r=(rG.count>rF.count)?rG:rF;
+      lines.push(vt.tag+' (blur '+vt.blur+'): '+r.count+' de 8 — '+JSON.stringify(r.found)+' — '+((Date.now()-t0)/1000).toFixed(1)+'s');
+      if(r.count>best.count){best=r;bestCanvas=canvas;bestFlat=flat;bestGeo=geo;}
+    }
     await worker.terminate();
 
-    var flat=result.data.text.replace(/[\n\r]+/g,' ');
-    var geo=_reconstructTextByGeometry(result.data.words).replace(/[\n\r]+/g,' ');
-    var rF=_pzParseText(flat);
-    var rG=geo?_pzParseText(geo):{found:{},count:-1};
-    var best=(rG.count>rF.count)?rG:rF;
+    var cv=document.getElementById('cv');
+    if(bestCanvas){cv.width=bestCanvas.width;cv.height=bestCanvas.height;cv.getContext('2d').drawImage(bestCanvas,0,0);}
 
-    setRes('Resultado: '+best.count+' de 8');
+    var tc=document.createElement('canvas').getContext('2d');
+    tc.filter='blur(1px)';
+    setRes('Mejor: '+best.count+' de 8');
     log(
-      'valores: '+JSON.stringify(best.found)+
-      '\nfoto: '+sw+'x'+sh+' | canvas: '+W+'x'+H+' | '+((Date.now()-t0)/1000).toFixed(1)+'s'+
-      '\nfiltro canvas soportado: '+(filterOk?'SI':'NO — ESTE ES EL PROBLEMA')+
-      '\nnavegador: '+navigator.userAgent.slice(0,80)+
-      '\n\n— TEXTO PLANO —\n'+flat.slice(0,400)+
-      '\n\n— TEXTO GEO —\n'+geo.slice(0,400)
+      lines.join('\n')+
+      '\nfoto: '+sw+'x'+sh+' | canvas: '+W+'x'+H+
+      '\nfiltro canvas soportado: '+((tc.filter==='blur(1px)')?'SI':'NO')+
+      '\n\n— TEXTO PLANO (mejor) —\n'+bestFlat.slice(0,300)+
+      '\n\n— TEXTO GEO (mejor) —\n'+bestGeo.slice(0,300)
     );
   }catch(e){
     setRes('ERROR');
