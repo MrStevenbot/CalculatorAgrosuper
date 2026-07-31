@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.27 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.28 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -277,7 +277,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.27</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.28</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -317,7 +317,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.27</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.28</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -355,6 +355,10 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         &#128247;
       </button>
     </div>
+    <button id="ficha-buscar-btn" onclick="fichaBuscarDesdeInput('search-inp')"
+      style="width:100%;margin-bottom:10px;padding:13px;border-radius:12px;border:1.5px solid #00E5FF55;background:linear-gradient(135deg,#001428,#002244);color:#00E5FF;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 10px #00E5FF15;text-shadow:0 0 8px #00E5FF60">
+      &#127760; Buscar ficha t&eacute;cnica
+    </button>
     <div id="calc-pedido-drop" style="display:none;background:linear-gradient(135deg,#060c18,#0a1020);border:1.5px solid #FFD06044;border-radius:12px;margin-bottom:10px;overflow:hidden"></div>
     <div id="calc-tarja-status" style="display:none;background:linear-gradient(135deg,#060c18,#0a1020);border:1.5px solid #00E5FF33;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:12px;color:#8BA4C8;text-align:center"></div>
     <input id="calc-tarja-inp" type="file" accept="image/*" capture="environment" style="display:none" onchange="_calcProcessTarjaFile(this)">
@@ -390,6 +394,10 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
           placeholder="Buscar SKU o nombre..." oninput="renderCatalog();_catClearShow()" style="padding-left:36px;padding-right:44px">
         <button class="scl" id="cat-clear-btn" style="display:none" onclick="clearCatalog()">&#x2715;</button>
       </div>
+      <button onclick="fichaBuscarDesdeInput('cat-q')"
+        style="width:100%;margin-bottom:8px;padding:11px;border-radius:10px;border:1.5px solid #00E5FF55;background:linear-gradient(135deg,#001428,#002244);color:#00E5FF;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 12px rgba(0,0,0,.5),0 0 8px #00E5FF15;text-shadow:0 0 8px #00E5FF60">
+        &#127760; Buscar ficha t&eacute;cnica
+      </button>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <select class="f-sel" id="cat-seg" onchange="renderCatalog()" style="flex:1;min-width:120px">
           <option value="Todos">Todas las áreas</option>
@@ -576,6 +584,10 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
             <input id="tp-sku-search" type="text" placeholder="Buscar SKU o nombre..." oninput="_tpSkuSearch(this.value)" style="width:100%;border:1.5px solid #0c2040;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;background:#050810;color:#C8D6EF;outline:none;box-sizing:border-box">
             <div id="tp-sku-drop" style="display:none;position:absolute;top:100%;left:0;right:0;background:#050d1c;border:1.5px solid #0c2040;border-radius:0 0 10px 10px;max-height:160px;overflow-y:auto;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.8)"></div>
           </div>
+          <button onclick="fichaBuscarDesdeInput('tp-sku-search')"
+            style="width:100%;margin-top:6px;padding:9px;border-radius:8px;border:1.5px solid #00E5FF55;background:linear-gradient(135deg,#001428,#002244);color:#00E5FF;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;text-shadow:0 0 8px #00E5FF60">
+            &#127760; Buscar ficha t&eacute;cnica
+          </button>
         </div>
 
         <!-- Preview impacto -->
@@ -1038,6 +1050,22 @@ function showTab(tab){
   });
 }
 
+function fichaSharePointUrl(sku){
+  return 'https://agrosuper.sharepoint.com/sites/fichatecnica2/SitePages/FichaTecnica/Forms/Fichas/FichaTecnicaCrudos.aspx?CodigoProducto='+encodeURIComponent(sku)+'&Lista=Formularios';
+}
+function _fichaSkuFromInput(v){
+  if(!v)return '';
+  var s=String(v).trim();
+  var i=s.indexOf(' - ');
+  if(i>=0)s=s.slice(0,i);
+  return s.trim();
+}
+function fichaBuscarDesdeInput(inputId){
+  var el=document.getElementById(inputId);
+  var sku=_fichaSkuFromInput(el?el.value:'');
+  if(!sku){alert('Ingresa un código SKU primero');return;}
+  window.open(fichaSharePointUrl(sku),'_blank');
+}
 function onSearch(q){
   document.getElementById('clear-btn').style.display=q?'':'none';
   if(!q||q.length<2){document.getElementById('dropdown').style.display='none';return;}
@@ -1598,7 +1626,7 @@ function renderPcard(p){
       'padding:10px 14px;box-shadow:0 0 12px #00E5FF30;-webkit-tap-highlight-color:transparent">'+
       '<span style="font-size:12px;font-weight:700;color:#00E5FF;text-shadow:0 0 8px #00E5FFaa;letter-spacing:.4px;text-transform:uppercase">&#128196; Ficha T&#233;cnica completa'+(hasLocalEdits?' <span style="font-size:9px;background:#FFD06030;color:#FFD060;border:1px solid #FFD06055;border-radius:5px;padding:1px 5px;vertical-align:middle">editada</span>':'')+'</span>'+
       '<span class="fc-arr" style="font-size:11px;color:#00E5FF;text-shadow:0 0 6px #00E5FFaa;transition:transform .25s">&#9660;</span></summary>'+
-      '<div style="padding:4px 0 8px">'+        '<a href="https://agrosuper.sharepoint.com/sites/fichatecnica2/SitePages/FichaTecnica/Forms/Fichas/FichaTecnicaCrudos.aspx?CodigoProducto='+p.sku+'&Lista=Formularios" target="_blank" style="display:block;width:100%;margin-bottom:8px;padding:9px;border-radius:8px;border:1px solid #00E5FF40;background:linear-gradient(135deg,#001428,#002244);color:#00E5FF;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;box-sizing:border-box;text-shadow:0 0 8px #00E5FF60">&#127760; Ver ficha en SharePoint</a>'+        '<button onclick="fichaAbrirEditor()" style="width:100%;margin-bottom:10px;padding:9px;border-radius:8px;border:1.5px solid #FFD06055;background:#1a100015;color:#FFD060;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">&#9998; Editar datos locales</button>'+        '<div id="ficha-editor-panel" style="display:none"></div>'+        fRows+'</div>'+
+      '<div style="padding:4px 0 8px">'+        '<a href="'+fichaSharePointUrl(p.sku)+'" target="_blank" style="display:block;width:100%;margin-bottom:8px;padding:9px;border-radius:8px;border:1px solid #00E5FF40;background:linear-gradient(135deg,#001428,#002244);color:#00E5FF;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;box-sizing:border-box;text-shadow:0 0 8px #00E5FF60">&#127760; Ver ficha en SharePoint</a>'+        '<button onclick="fichaAbrirEditor()" style="width:100%;margin-bottom:10px;padding:9px;border-radius:8px;border:1.5px solid #FFD06055;background:#1a100015;color:#FFD060;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">&#9998; Editar datos locales</button>'+        '<div id="ficha-editor-panel" style="display:none"></div>'+        fRows+'</div>'+
     '</details>';
   }
 
@@ -4009,6 +4037,7 @@ function showManualSkuEntry(){
         ' style="flex:1;border:1.5px solid #0c2040;border-radius:9px;padding:9px 12px;font-size:14px;background:linear-gradient(135deg,#050810,#030710);color:#FFFFFF;outline:none;font-family:inherit;-webkit-appearance:none;box-shadow:inset 0 2px 6px rgba(0,0,0,.5)"'+
         ' oninput="renderManualSearch(this.value)">'+
       '</div>'+
+      '<button onclick="fichaBuscarDesdeInput(\'manual-sku-q\')" style="width:100%;margin-bottom:8px;padding:11px;border-radius:9px;border:1.5px solid #00E5FF55;background:linear-gradient(135deg,#001428,#002244);color:#00E5FF;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;text-shadow:0 0 8px #00E5FF60">&#127760; Buscar ficha t&eacute;cnica</button>'+
       '<div id="manual-sku-results" style="max-height:200px;overflow-y:auto;border-radius:8px"></div>'+
       '<div style="display:flex;gap:8px;margin-top:10px">'+
         '<input id="manual-kg-inp" type="number" inputmode="decimal" placeholder="kg del pedido"'+
