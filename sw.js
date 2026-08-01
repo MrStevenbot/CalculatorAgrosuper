@@ -1,4 +1,4 @@
-const CACHE = 'agrocalc-v19';
+const CACHE = 'agrocalc-v20';
 const FILES = [
   './',
   './index.html',
