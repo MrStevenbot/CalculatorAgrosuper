@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.36 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.37 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -277,7 +277,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.36</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.37</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -317,7 +317,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.36</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.37</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -5956,11 +5956,12 @@ function pzCalcular(){
   // Colores extraídos de una foto real de la pantalla Innova (20260714_235056.jpg) para que
   // el gráfico se vea igual al de la máquina — un color fijo por calibre OZ, no por posición.
   var PZ_PIE_COLORS={4:'#FF5C33',5:'#1E90FF',6:'#FFC700',7:'#8BC34A',8:'#7EC8FF',9:'#FF9800',10:'#9C6ADE'};
+  // sweep=0 dibuja el arco en sentido antihorario (contra las agujas del reloj)
   function _pzSlicePath(cx,cy,r,a0,a1){
     var x1=cx+r*Math.cos(a0), y1=cy+r*Math.sin(a0);
     var x2=cx+r*Math.cos(a1), y2=cy+r*Math.sin(a1);
-    var large=(a1-a0)>Math.PI?1:0;
-    return 'M'+cx+','+cy+' L'+x1.toFixed(2)+','+y1.toFixed(2)+' A'+r+','+r+' 0 '+large+' 1 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z';
+    var large=Math.abs(a1-a0)>Math.PI?1:0;
+    return 'M'+cx+','+cy+' L'+x1.toFixed(2)+','+y1.toFixed(2)+' A'+r+','+r+' 0 '+large+' 0 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z';
   }
   var angleAcc=-Math.PI/2, pieSlices='', legendRows='';
   PZ_OZ.forEach(function(oz){
@@ -5968,8 +5969,8 @@ function pzCalcular(){
     var color=PZ_PIE_COLORS[oz];
     if(v>0&&pieTotal>0){
       var ang=(v/pieTotal)*2*Math.PI;
-      pieSlices+='<path d="'+_pzSlicePath(100,100,80,angleAcc,angleAcc+ang)+'" fill="'+color+'" stroke="#040810" stroke-width="1.5"/>';
-      angleAcc+=ang;
+      pieSlices+='<path d="'+_pzSlicePath(100,100,80,angleAcc,angleAcc-ang)+'" fill="'+color+'" stroke="#040810" stroke-width="1.5"/>';
+      angleAcc-=ang;
     }
     var n=floorVal[oz]||0;
     var rango=n>0?_pzTomarPuertas(n):'&mdash;';
@@ -5985,8 +5986,8 @@ function pzCalcular(){
     var colorR='#9CA3AF';
     if(pieTotal>0){
       var angR=(pctRech/pieTotal)*2*Math.PI;
-      pieSlices+='<path d="'+_pzSlicePath(100,100,80,angleAcc,angleAcc+angR)+'" fill="'+colorR+'" stroke="#040810" stroke-width="1.5"/>';
-      angleAcc+=angR;
+      pieSlices+='<path d="'+_pzSlicePath(100,100,80,angleAcc,angleAcc-angR)+'" fill="'+colorR+'" stroke="#040810" stroke-width="1.5"/>';
+      angleAcc-=angR;
     }
     legendRows+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;background:#12141a">'+
       '<span style="width:9px;height:9px;border-radius:50%;background:'+colorR+';flex-shrink:0;box-shadow:0 0 6px '+colorR+'90"></span>'+
