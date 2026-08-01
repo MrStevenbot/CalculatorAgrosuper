@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.32 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.33 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -277,7 +277,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.32</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.33</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -317,7 +317,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.32</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.33</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -851,10 +851,9 @@ var TAB_ORDER=['calc','bascalc','hist','catalog','tiempos','bitacora','puertas']
   document.addEventListener('touchstart',function(e){
     _sx=e.touches[0].clientX;
     _sy=e.touches[0].clientY;
-    // Gestos dentro del recortador de Puertas (mover/ajustar el recuadro verde) o de los
-    // scrolls horizontales de Capacidad por Línea / resultado de Puertas Marel
-    // no deben disparar el cambio de pestaña
-    _skip=!!(e.target&&e.target.closest&&e.target.closest('#pz-crop-overlay, #hist-lineas-scroll, #pz-resultado-scroll'));
+    // Gestos dentro del recortador de Puertas (mover/ajustar el recuadro verde) o del
+    // scroll horizontal de Capacidad por Línea no deben disparar el cambio de pestaña
+    _skip=!!(e.target&&e.target.closest&&e.target.closest('#pz-crop-overlay, #hist-lineas-scroll'));
   },{passive:true});
   document.addEventListener('touchend',function(e){
     if(_skip){_skip=false;return;}
@@ -5932,8 +5931,7 @@ function pzCalcular(){
 
   // Asigna puertas correlativas 1..50 saltándose la 7 cuando está reservada para rechazo;
   // un calibre que cruza la 7 muestra su rango partido (ej. "5&ndash;6, 8&ndash;10")
-  var cursor=1, rows='';
-  var BAR_H=84;
+  var cursor=1;
   function _pzTomarPuertas(n){
     var doors=[];
     while(doors.length<n){
@@ -5948,46 +5946,64 @@ function pzCalcular(){
     segs.push([s,p]);
     return segs.map(function(sp){return sp[0]===sp[1]?String(sp[0]):sp[0]+'&ndash;'+sp[1];}).join(', ');
   }
-  PZ_OZ.forEach(function(oz){
+
+  // Gráfico de torta — mismo formato que la pantalla Innova de Marel: una porción por calibre OZ
+  // (más Rechazo si tiene %), tamaño de porción proporcional al % real medido por la pesa.
+  var pctRech=pzGetVal('pz-pct-rechazo')||0;
+  var pieTotal=sumOz+(pctRech>0?pctRech:0);
+  var PZ_PIE_COLORS=['#00E5FF','#FFD060','#00FF7F','#B14EFF','#FF9500','#4EA8FF','#5EEAD4'];
+  function _pzSlicePath(cx,cy,r,a0,a1){
+    var x1=cx+r*Math.cos(a0), y1=cy+r*Math.sin(a0);
+    var x2=cx+r*Math.cos(a1), y2=cy+r*Math.sin(a1);
+    var large=(a1-a0)>Math.PI?1:0;
+    return 'M'+cx+','+cy+' L'+x1.toFixed(2)+','+y1.toFixed(2)+' A'+r+','+r+' 0 '+large+' 1 '+x2.toFixed(2)+','+y2.toFixed(2)+' Z';
+  }
+  var angleAcc=-Math.PI/2, pieSlices='', legendRows='';
+  PZ_OZ.forEach(function(oz,idx){
+    var v=pct[oz]||0;
+    var color=PZ_PIE_COLORS[idx%PZ_PIE_COLORS.length];
+    if(v>0&&pieTotal>0){
+      var ang=(v/pieTotal)*2*Math.PI;
+      pieSlices+='<path d="'+_pzSlicePath(100,100,80,angleAcc,angleAcc+ang)+'" fill="'+color+'" stroke="#040810" stroke-width="1.5"/>';
+      angleAcc+=ang;
+    }
     var n=floorVal[oz]||0;
     var rango=n>0?_pzTomarPuertas(n):'&mdash;';
-    var barPct=Math.max(0,Math.min(100,pct[oz]||0));
-    rows+='<div style="flex:0 0 62px;min-width:62px;display:flex;flex-direction:column;align-items:center;background:#040810;border-radius:10px;padding:9px 6px 8px;border:1px solid #0d1a2e">'+
-      '<div style="font-size:10px;font-weight:800;color:#C8D6EF;margin-bottom:7px;white-space:nowrap">'+oz+' OZ</div>'+
-      '<div style="width:22px;height:'+BAR_H+'px;background:#040a18;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:inset 0 0 4px rgba(0,0,0,.6)">'+
-        '<div style="width:100%;height:'+barPct+'%;background:linear-gradient(180deg,#00E5FF,#00E5FFcc);border-radius:4px 4px 0 0;transition:height .3s;box-shadow:0 0 8px #00E5FF70"></div>'+
-      '</div>'+
-      '<div style="font-size:9px;color:#8BA4C8;margin-top:6px;white-space:nowrap">'+pzFmt(pct[oz])+'%</div>'+
-      '<div style="font-size:15px;font-family:monospace;font-weight:800;color:#FFD060;margin-top:4px">'+n+'</div>'+
-      '<div style="font-size:7px;color:#506480;text-transform:uppercase;letter-spacing:.3px">'+(n===1?'puerta':'puertas')+'</div>'+
-      '<div style="font-size:9px;color:#00E5FF;font-weight:700;margin-top:6px;padding-top:6px;border-top:.5px solid #0d1a2e;font-family:monospace;white-space:nowrap">'+rango+'</div>'+
+    legendRows+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:.5px solid #0d1a2e">'+
+      '<span style="width:9px;height:9px;border-radius:50%;background:'+color+';flex-shrink:0;box-shadow:0 0 6px '+color+'90"></span>'+
+      '<span style="font-size:11px;font-weight:800;color:#C8D6EF;width:44px">'+oz+' OZ</span>'+
+      '<span style="font-size:11px;color:#8BA4C8;width:54px;text-align:right">'+pzFmt(v)+'%</span>'+
+      '<span style="flex:1;text-align:center;font-size:12px;font-weight:800;color:#FFD060">'+n+(n===1?' puerta':' puertas')+'</span>'+
+      '<span style="font-family:monospace;font-size:11px;font-weight:700;color:#00E5FF;text-align:right;min-width:60px">'+rango+'</span>'+
     '</div>';
   });
-  if(rechazoP7){
-    var pctRech=pzGetVal('pz-pct-rechazo');
-    var barPctR=Math.max(0,Math.min(100,pctRech||0));
-    rows+='<div style="flex:0 0 62px;min-width:62px;display:flex;flex-direction:column;align-items:center;background:#12030a;border-radius:10px;padding:9px 6px 8px;border:1px solid #FF4D6D30">'+
-      '<div style="font-size:10px;font-weight:800;color:#FF4D6D;margin-bottom:7px;white-space:nowrap">Rech.</div>'+
-      '<div style="width:22px;height:'+BAR_H+'px;background:#040a18;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:inset 0 0 4px rgba(0,0,0,.6)">'+
-        '<div style="width:100%;height:'+barPctR+'%;background:linear-gradient(180deg,#FF4D6D,#FF4D6Dcc);border-radius:4px 4px 0 0;box-shadow:0 0 8px #FF4D6D70"></div>'+
-      '</div>'+
-      '<div style="font-size:9px;color:#FF4D6D99;margin-top:6px;white-space:nowrap">'+pzFmt(pctRech)+'%</div>'+
-      '<div style="font-size:15px;font-family:monospace;font-weight:800;color:#FF4D6D;margin-top:4px">1</div>'+
-      '<div style="font-size:7px;color:#FF4D6D99;text-transform:uppercase;letter-spacing:.3px">puerta</div>'+
-      '<div style="font-size:9px;color:#FF4D6D;font-weight:700;margin-top:6px;padding-top:6px;border-top:.5px solid #FF4D6D30;font-family:monospace">7</div>'+
+  if(pctRech>0){
+    var colorR='#FF4D6D';
+    if(pieTotal>0){
+      var angR=(pctRech/pieTotal)*2*Math.PI;
+      pieSlices+='<path d="'+_pzSlicePath(100,100,80,angleAcc,angleAcc+angR)+'" fill="'+colorR+'" stroke="#040810" stroke-width="1.5"/>';
+      angleAcc+=angR;
+    }
+    legendRows+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;background:#12030a">'+
+      '<span style="width:9px;height:9px;border-radius:50%;background:'+colorR+';flex-shrink:0;box-shadow:0 0 6px '+colorR+'90"></span>'+
+      '<span style="font-size:11px;font-weight:800;color:#FF4D6D;width:44px">Rech.</span>'+
+      '<span style="font-size:11px;color:#FF4D6D99;width:54px;text-align:right">'+pzFmt(pctRech)+'%</span>'+
+      '<span style="flex:1;text-align:center;font-size:12px;font-weight:800;color:'+(rechazoP7?'#FF4D6D':'#506480')+'">'+(rechazoP7?'1 puerta':'no reservada')+'</span>'+
+      '<span style="font-family:monospace;font-size:11px;font-weight:700;color:'+(rechazoP7?'#FF4D6D':'#506480')+';text-align:right;min-width:60px">'+(rechazoP7?'7':'&mdash;')+'</span>'+
     '</div>';
   }
 
   resDiv.style.display='';
   resDiv.innerHTML='<div style="background:linear-gradient(160deg,#060c18,#0a1020,#030710);border-radius:14px;border:1px solid #091835;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.7)">'+
     '<div style="padding:11px 13px;font-size:10px;font-weight:700;color:#FFD060;text-transform:uppercase;letter-spacing:.7px;background:#0a0800;border-bottom:1px solid #0c2040">&#128274; Asignaci&#243;n sugerida &mdash; Marel '+pzCurrentMarel+' (50 puertas'+(rechazoP7?' &middot; P7 rechazo':'')+')</div>'+
-    '<div style="padding:9px 13px 0;display:flex;gap:12px;flex-wrap:wrap;font-size:8px;color:#8BA4C8">'+
-      '<span>&#9608; <span style="color:#00E5FF">Cian</span> = % detectado por calibre</span>'+
-      '<span><b style="color:#FFD060">N&#250;mero dorado</b> = puertas asignadas</span>'+
-      '<span><b style="color:#00E5FF">Abajo</b> = rango de puertas</span>'+
+    '<div style="display:flex;justify-content:center;padding:16px 13px 8px">'+
+      '<svg viewBox="0 0 200 200" width="176" height="176" style="filter:drop-shadow(0 4px 14px rgba(0,0,0,.6))">'+pieSlices+'</svg>'+
     '</div>'+
-    '<div id="pz-resultado-scroll" style="display:flex;gap:8px;overflow-x:auto;padding:10px 13px 13px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;align-items:flex-end">'+
-      rows+
+    '<div style="padding:2px 13px 13px">'+
+      '<div style="display:flex;align-items:center;gap:7px;padding:5px 0;font-size:9px;font-weight:700;color:#506480;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #0c2040">'+
+        '<span style="width:9px"></span><span style="width:44px">Calibre</span><span style="width:54px;text-align:right">%</span><span style="flex:1;text-align:center">Puertas</span><span style="min-width:60px;text-align:right">Rango</span>'+
+      '</div>'+
+      legendRows+
     '</div>'+
   '</div>';
 }
