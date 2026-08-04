@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.44 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.45 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -281,7 +281,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.44</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.45</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -321,7 +321,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.44</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.45</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -849,6 +849,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="font-size:14px;font-weight:800;color:#FFD060">Vacaciones del equipo</div>
         <div style="font-size:10px;color:#8BA4C8">Calendario anual &middot; planificaci&#243;n visual</div>
       </div>
+      <button onclick="vacPersonasModalOpen()" title="Gestionar personas" style="background:#040a18;border:1px solid #0c2040;border-radius:8px;color:#00E5FF;font-size:16px;cursor:pointer;padding:6px 10px;line-height:1;font-family:inherit;margin-right:4px">&#128101;</button>
       <button onclick="vacClose()" style="background:none;border:none;color:#8BA4C8;font-size:24px;cursor:pointer;padding:2px 6px;line-height:1">&#215;</button>
     </div>
     <div style="display:flex;gap:6px;padding:10px 14px 0;flex-shrink:0">
@@ -897,6 +898,16 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="font-size:14px;font-weight:800;color:#FFD060;margin-bottom:10px" id="vac-dia-modal-title">D&iacute;a</div>
         <div id="vac-dia-modal-list"></div>
         <button onclick="vacDiaModalClose()" style="width:100%;margin-top:12px;background:#0a1020;border:1px solid #0c2040;border-radius:9px;padding:11px;color:#8BA4C8;font-size:13px;font-weight:800;font-family:inherit">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Gestionar personas: agregar/eliminar/editar días, accesible desde ambas vistas -->
+    <div id="vac-personas-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:14px" onclick="if(event.target===this)vacPersonasModalClose()">
+      <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:18px;max-width:380px;width:100%;box-sizing:border-box;max-height:82vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+        <div style="font-size:14px;font-weight:800;color:#FFD060;margin-bottom:10px">&#128101; Gestionar personas</div>
+        <div id="vac-personas-modal-list"></div>
+        <button onclick="vacAddPersonaPrompt();vacPersonasModalRender()" style="width:100%;margin-top:10px;background:linear-gradient(135deg,#002a00,#005500);border:1px solid #00FF7F40;border-radius:9px;padding:11px;color:#00FF7F;font-size:13px;font-weight:800;font-family:inherit">&#43; Agregar persona</button>
+        <button onclick="vacPersonasModalClose()" style="width:100%;margin-top:8px;background:#0a1020;border:1px solid #0c2040;border-radius:9px;padding:11px;color:#8BA4C8;font-size:13px;font-weight:800;font-family:inherit">Cerrar</button>
       </div>
     </div>
   </div>
@@ -6682,7 +6693,7 @@ function vacRenderMes(){
       var tags=names.map(function(p){
         return '<div style="font-size:8.5px;font-weight:700;line-height:1.2;background:#FFD06022;color:#FFD060;border-radius:4px;padding:2px 4px;margin-top:3px;white-space:normal;word-break:break-word;overflow-wrap:break-word">'+p.nombre+'</div>';
       }).join('');
-      var clickAttr=names.length?' onclick="vacDiaDetalle(\''+c.iso+'\')" style="min-height:62px;border-radius:9px;background:#040810;border:1px solid #0d1a2e;padding:5px;overflow:hidden;cursor:pointer"':' style="min-height:62px;border-radius:9px;background:#040810;border:1px solid #0d1a2e;padding:5px;overflow:hidden"';
+      var clickAttr=' onclick="vacDiaDetalle(\''+c.iso+'\')" style="min-height:62px;border-radius:9px;background:#040810;border:1px solid #0d1a2e;padding:5px;overflow:hidden;cursor:pointer"';
       return '<div'+clickAttr+'>'+
         '<div style="font-size:13px;font-weight:800;color:'+(isSunday?'#FF4D6D':'#C8D6EF')+'">'+c.day+'</div>'+
         tags+
@@ -6705,18 +6716,31 @@ function vacDiaDetalle(iso){
       matches.push({per:per,persona:p});
     }
   });
-  if(!matches.length)return;
-  var d=new Date(iso+'T00:00:00');
-  document.getElementById('vac-dia-modal-title').textContent=_vacFmtFecha(iso)+' — '+matches.length+(matches.length===1?' persona':' personas');
-  var list=matches.map(function(x){
-    var dias=_vacBusinessDays(x.per.inicio,x.per.fin);
-    return '<div onclick="vacDiaModalClose();vacPeriodoEditar(\''+x.per.id+'\')" style="background:#040810;border:1px solid #0d1a2e;border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer">'+
-      '<div style="font-size:13px;font-weight:800;color:#C8D6EF;margin-bottom:3px">'+(x.persona?x.persona.nombre:'?')+'</div>'+
-      '<div style="font-size:11px;color:#8BA4C8">'+_vacFmtRango(x.per.inicio,x.per.fin)+'</div>'+
-      '<div style="font-size:11px;color:#FFD060;font-weight:700;margin-top:3px">'+dias+' d&iacute;a(s) h&aacute;bil(es) &middot; toca para editar</div>'+
-    '</div>';
-  }).join('');
-  document.getElementById('vac-dia-modal-list').innerHTML=list;
+  document.getElementById('vac-dia-modal-title').textContent=_vacFmtFecha(iso)+(matches.length?(' — '+matches.length+(matches.length===1?' persona':' personas')):'');
+  var html='';
+  if(matches.length){
+    html+=matches.map(function(x){
+      var dias=_vacBusinessDays(x.per.inicio,x.per.fin);
+      return '<div onclick="vacDiaModalClose();vacPeriodoEditar(\''+x.per.id+'\')" style="background:#040810;border:1px solid #0d1a2e;border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer">'+
+        '<div style="font-size:13px;font-weight:800;color:#C8D6EF;margin-bottom:3px">'+(x.persona?x.persona.nombre:'?')+'</div>'+
+        '<div style="font-size:11px;color:#8BA4C8">'+_vacFmtRango(x.per.inicio,x.per.fin)+'</div>'+
+        '<div style="font-size:11px;color:#FFD060;font-weight:700;margin-top:3px">'+dias+' d&iacute;a(s) h&aacute;bil(es) &middot; toca para editar</div>'+
+      '</div>';
+    }).join('');
+  }else{
+    html+='<div style="text-align:center;color:#506480;font-size:12px;padding:6px 0 16px">Nadie de vacaciones este d&iacute;a.</div>';
+  }
+  if(personas.length){
+    html+='<div style="font-size:10px;font-weight:700;color:#8BA4C8;text-transform:uppercase;letter-spacing:.4px;margin:10px 0 7px;border-top:1px solid #0c2040;padding-top:12px">&#43; Agregar per&iacute;odo este d&iacute;a para:</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+        personas.map(function(p){
+          return '<button onclick="vacDiaModalClose();vacPeriodoAbrirNuevo(\''+p.id+'\',\''+iso+'\')" style="background:#001428;border:1px solid #00E5FF40;border-radius:7px;color:#00E5FF;font-size:11px;font-weight:700;padding:6px 10px;cursor:pointer;font-family:inherit">'+p.nombre+'</button>';
+        }).join('')+
+      '</div>';
+  }else{
+    html+='<div style="text-align:center;color:#506480;font-size:11px;padding:8px 0">Agrega una persona primero (bot&oacute;n &#128101; arriba).</div>';
+  }
+  document.getElementById('vac-dia-modal-list').innerHTML=html;
   document.getElementById('vac-dia-modal').style.display='flex';
 }
 
@@ -6740,12 +6764,46 @@ function vacPersonaEliminar(id){
   vacRender();
 }
 
-function vacPeriodoAbrirNuevo(personaId){
+// Gestión de personas accesible desde cualquier vista (👥 en el encabezado):
+// agregar, eliminar, o editar días hábiles, sin importar si estás en Vista Año o Vista Mes.
+function vacPersonasModalOpen(){
+  vacPersonasModalRender();
+  document.getElementById('vac-personas-modal').style.display='flex';
+}
+function vacPersonasModalClose(){
+  document.getElementById('vac-personas-modal').style.display='none';
+}
+function vacPersonasModalRender(){
+  var personas=vacLoadPersonas();
+  var list=document.getElementById('vac-personas-modal-list');
+  if(!list)return;
+  if(!personas.length){
+    list.innerHTML='<div style="text-align:center;color:#506480;font-size:12px;padding:14px 0">A&uacute;n no agregas a nadie.</div>';
+    return;
+  }
+  list.innerHTML=personas.map(function(p){
+    var diasHabiles=(p.diasHabiles!=null)?p.diasHabiles:VAC_DIAS_DEFAULT;
+    return '<div style="display:flex;align-items:center;gap:8px;background:#040810;border:1px solid #0d1a2e;border-radius:9px;padding:9px 11px;margin-bottom:7px">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:700;color:#C8D6EF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.nombre+'</div>'+
+        '<div style="font-size:10px;color:#506480">'+diasHabiles+' d&iacute;as h&aacute;biles/a&ntilde;o</div>'+
+      '</div>'+
+      '<button onclick="vacPersonaEditarDias(\''+p.id+'\');vacPersonasModalRender()" style="background:#001428;border:1px solid #00E5FF40;border-radius:7px;color:#00E5FF;font-size:10px;font-weight:800;padding:6px 9px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">d&iacute;as</button>'+
+      '<button onclick="vacPersonaEliminarDesdeModal(\''+p.id+'\')" title="Eliminar persona" style="background:none;border:none;color:#FF4D6D;font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0">&#128465;</button>'+
+    '</div>';
+  }).join('');
+}
+function vacPersonaEliminarDesdeModal(id){
+  vacPersonaEliminar(id);
+  vacPersonasModalRender();
+}
+
+function vacPeriodoAbrirNuevo(personaId,presetIso){
   _vacPeriodoEditId=null;
   _vacPeriodoPersonaId=personaId;
-  _vacPick={start:null,end:null};
-  var hoy=new Date();
-  _vacPickYear=hoy.getFullYear(); _vacPickMonth=hoy.getMonth();
+  _vacPick=presetIso?{start:presetIso,end:null}:{start:null,end:null};
+  var ref=presetIso?new Date(presetIso+'T00:00:00'):new Date();
+  _vacPickYear=ref.getFullYear(); _vacPickMonth=ref.getMonth();
   var p=vacLoadPersonas().filter(function(x){return x.id===personaId;})[0];
   document.getElementById('vac-periodo-modal-title').textContent='Agregar período';
   document.getElementById('vac-periodo-modal-persona').textContent=p?p.nombre:'';
