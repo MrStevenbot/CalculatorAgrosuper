@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.40 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.41 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -281,7 +281,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.40</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.41</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -321,7 +321,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.40</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.41</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -851,10 +851,14 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
       </div>
       <button onclick="vacClose()" style="background:none;border:none;color:#8BA4C8;font-size:24px;cursor:pointer;padding:2px 6px;line-height:1">&#215;</button>
     </div>
+    <div style="display:flex;gap:6px;padding:10px 14px 0;flex-shrink:0">
+      <button id="vac-tab-anio" onclick="vacSetView('anio')" style="flex:1;padding:9px;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">&#128197; Vista A&ntilde;o</button>
+      <button id="vac-tab-mes" onclick="vacSetView('mes')" style="flex:1;padding:9px;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">&#128198; Vista Mes</button>
+    </div>
     <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 14px;border-bottom:1px solid #0c2040;flex-shrink:0">
-      <button onclick="vacYearShift(-1)" style="background:#040a18;border:1px solid #0c2040;border-radius:8px;color:#00E5FF;font-size:16px;padding:6px 14px;cursor:pointer;font-family:inherit">&#8249;</button>
+      <button onclick="vacNavShift(-1)" style="background:#040a18;border:1px solid #0c2040;border-radius:8px;color:#00E5FF;font-size:16px;padding:6px 14px;cursor:pointer;font-family:inherit">&#8249;</button>
       <div id="vac-year-label" style="font-size:16px;font-weight:800;color:#C8D6EF;font-family:monospace;min-width:60px;text-align:center"></div>
-      <button onclick="vacYearShift(1)" style="background:#040a18;border:1px solid #0c2040;border-radius:8px;color:#00E5FF;font-size:16px;padding:6px 14px;cursor:pointer;font-family:inherit">&#8250;</button>
+      <button onclick="vacNavShift(1)" style="background:#040a18;border:1px solid #0c2040;border-radius:8px;color:#00E5FF;font-size:16px;padding:6px 14px;cursor:pointer;font-family:inherit">&#8250;</button>
     </div>
     <div id="vac-scroll" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px">
       <div id="vac-body"></div>
@@ -6456,6 +6460,8 @@ var VAC_MESES_FULL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Ag
 var VAC_DOW=['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
 var VAC_DIAS_DEFAULT=15;
 var vacYear=new Date().getFullYear();
+var vacMonth=new Date().getMonth();
+var vacViewMode='anio';
 var _vacPeriodoEditId=null, _vacPeriodoPersonaId=null;
 var _vacPick={start:null,end:null};
 var _vacPickYear=vacYear, _vacPickMonth=new Date().getMonth();
@@ -6473,14 +6479,37 @@ function vacOpen(){
   var ov=document.getElementById('vac-overlay');
   if(!ov)return;
   ov.style.display='flex';
+  _vacRenderTabs();
   vacRender();
 }
 function vacClose(){
   var ov=document.getElementById('vac-overlay');
   if(ov)ov.style.display='none';
 }
-function vacYearShift(delta){
-  vacYear+=delta;
+var _vacTabBase='flex:1;padding:9px;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;';
+function _vacTabStyle(active){
+  return _vacTabBase+(active
+    ?'border:1.5px solid #FFD06080;background:linear-gradient(135deg,#1a1200,#2a1e00);color:#FFD060;text-shadow:0 0 8px #FFD06060'
+    :'border:1.5px solid #0c2040;background:#040a18;color:#8BA4C8');
+}
+function _vacRenderTabs(){
+  var ta=document.getElementById('vac-tab-anio'), tm=document.getElementById('vac-tab-mes');
+  if(ta)ta.style.cssText=_vacTabStyle(vacViewMode==='anio');
+  if(tm)tm.style.cssText=_vacTabStyle(vacViewMode==='mes');
+}
+function vacSetView(mode){
+  vacViewMode=mode;
+  _vacRenderTabs();
+  vacRender();
+}
+function vacNavShift(delta){
+  if(vacViewMode==='mes'){
+    vacMonth+=delta;
+    if(vacMonth<0){vacMonth=11;vacYear--;}
+    else if(vacMonth>11){vacMonth=0;vacYear++;}
+  }else{
+    vacYear+=delta;
+  }
   vacRender();
 }
 
@@ -6553,7 +6582,11 @@ function vacPersonaEditarDias(id){
 
 function vacRender(){
   var yearLbl=document.getElementById('vac-year-label');
-  if(yearLbl)yearLbl.textContent=vacYear;
+  if(yearLbl)yearLbl.textContent=vacViewMode==='mes'?(VAC_MESES_FULL[vacMonth]+' '+vacYear):String(vacYear);
+  if(vacViewMode==='mes')vacRenderMes(); else vacRenderAnio();
+}
+
+function vacRenderAnio(){
   var personas=vacLoadPersonas();
   var periodos=vacLoadPeriodos();
   var body=document.getElementById('vac-body');
@@ -6603,6 +6636,51 @@ function vacRender(){
     '</div>';
   });
   body.innerHTML=html;
+}
+
+// Vista Mes — calendario grande de un mes con el nombre de cada colaborador escrito
+// dentro del día que está de vacaciones. Domingo siempre en rojo (feriado).
+function vacRenderMes(){
+  var body=document.getElementById('vac-body');
+  if(!body)return;
+  var personas=vacLoadPersonas();
+  var periodos=vacLoadPeriodos();
+  var y=vacYear, m=vacMonth;
+  var firstDow=(new Date(y,m,1).getDay()+6)%7; // 0=Lun..6=Dom
+  var daysInMonth=new Date(y,m+1,0).getDate();
+  var daysInPrev=new Date(y,m,0).getDate();
+  var cells=[];
+  for(var i=0;i<firstDow;i++)cells.push({day:daysInPrev-firstDow+1+i,other:true,iso:null});
+  for(var d=1;d<=daysInMonth;d++)cells.push({day:d,other:false,iso:_vacISO(y,m,d)});
+  var next=1;
+  while(cells.length%7!==0){cells.push({day:next++,other:true,iso:null});}
+
+  var dowHtml='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:5px">'+
+    VAC_DOW.map(function(w,i){return '<div style="text-align:center;font-size:11px;font-weight:800;color:'+(i===6?'#FF4D6D':'#506480')+'">'+w+'</div>';}).join('')+
+  '</div>';
+
+  var gridHtml='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">'+
+    cells.map(function(c,idx){
+      var isSunday=idx%7===6;
+      if(c.other){
+        return '<div style="min-height:62px;border-radius:9px;background:#02060e;padding:5px;opacity:.4">'+
+          '<div style="font-size:12px;font-weight:700;color:'+(isSunday?'#7a2530':'#3a4560')+'">'+c.day+'</div>'+
+        '</div>';
+      }
+      var names=personas.filter(function(p){
+        return periodos.some(function(per){return per.personaId===p.id&&per.inicio<=c.iso&&c.iso<=per.fin;});
+      });
+      var tags=names.map(function(p){
+        return '<div style="font-size:9px;font-weight:700;background:#FFD06022;color:#FFD060;border-radius:4px;padding:2px 4px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+p.nombre+'">'+p.nombre+'</div>';
+      }).join('');
+      return '<div style="min-height:62px;border-radius:9px;background:#040810;border:1px solid #0d1a2e;padding:5px;overflow:hidden">'+
+        '<div style="font-size:13px;font-weight:800;color:'+(isSunday?'#FF4D6D':'#C8D6EF')+'">'+c.day+'</div>'+
+        tags+
+      '</div>';
+    }).join('')+
+  '</div>';
+
+  body.innerHTML=dowHtml+gridHtml;
 }
 
 function vacAddPersonaPrompt(){
