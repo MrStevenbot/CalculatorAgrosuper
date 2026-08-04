@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.38 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.39 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -257,6 +257,10 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
             <div><div>Acciones Subestándar</div><div class="tm-sub">Jefatura &middot; Microsoft Forms</div></div>
           </a>
         </div>
+        <div class="tools-menu-item" onclick="toolsMenuClose();vacOpen()">
+          <span class="tm-icon">&#127958;</span>
+          <div><div>Vacaciones</div><div class="tm-sub">Calendario del equipo &middot; 12 meses</div></div>
+        </div>
         <a class="tools-menu-item" href="https://kronos.scm-cloud.cl/auth" target="_blank" rel="noopener" onclick="toolsMenuClose()">
           <span class="tm-icon">&#128336;</span>
           <div><div>Kronos</div><div class="tm-sub">Horarios y asistencia &middot; scm-cloud</div></div>
@@ -277,7 +281,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.38</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.39</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -317,7 +321,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.38</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.39</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -837,6 +841,47 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
     </div>
   </div>
 
+  <!-- VACACIONES -->
+  <div id="vac-overlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#02050c;flex-direction:column">
+    <div style="background:linear-gradient(180deg,#00030a,#000919);padding:14px 14px 12px;border-bottom:1.5px solid #0c2040;display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <span style="font-size:20px">&#127958;</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:800;color:#FFD060">Vacaciones del equipo</div>
+        <div style="font-size:10px;color:#8BA4C8">Calendario anual &middot; planificaci&#243;n visual</div>
+      </div>
+      <button onclick="vacClose()" style="background:none;border:none;color:#8BA4C8;font-size:24px;cursor:pointer;padding:2px 6px;line-height:1">&#215;</button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:10px 14px;border-bottom:1px solid #0c2040;flex-shrink:0">
+      <button onclick="vacYearShift(-1)" style="background:#040a18;border:1px solid #0c2040;border-radius:8px;color:#00E5FF;font-size:16px;padding:6px 14px;cursor:pointer;font-family:inherit">&#8249;</button>
+      <div id="vac-year-label" style="font-size:16px;font-weight:800;color:#C8D6EF;font-family:monospace;min-width:60px;text-align:center"></div>
+      <button onclick="vacYearShift(1)" style="background:#040a18;border:1px solid #0c2040;border-radius:8px;color:#00E5FF;font-size:16px;padding:6px 14px;cursor:pointer;font-family:inherit">&#8250;</button>
+    </div>
+    <div id="vac-scroll" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 12px 4px">
+      <div id="vac-body"></div>
+    </div>
+    <div style="padding:10px 14px 14px;border-top:1px solid #0c2040;flex-shrink:0">
+      <button onclick="vacAddPersonaPrompt()" style="width:100%;background:linear-gradient(135deg,#002a00,#005500);border:1px solid #00FF7F40;border-radius:12px;padding:14px;color:#00FF7F;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.5);text-shadow:0 0 8px #00FF7F60">&#43; Agregar persona</button>
+    </div>
+
+    <!-- Modal agregar/editar período -->
+    <div id="vac-periodo-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)vacPeriodoModalClose()">
+      <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:20px;max-width:360px;width:100%;box-sizing:border-box">
+        <div style="font-size:14px;font-weight:800;color:#FFD060;margin-bottom:4px" id="vac-periodo-modal-title">Agregar per&#237;odo</div>
+        <div style="font-size:11px;color:#8BA4C8;margin-bottom:14px" id="vac-periodo-modal-persona"></div>
+        <div style="font-size:10px;font-weight:700;color:#8BA4C8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Desde</div>
+        <input type="date" id="vac-periodo-inicio" style="width:100%;border:1.5px solid #0c2040;border-radius:9px;padding:10px;font-size:14px;font-family:inherit;font-weight:700;background:#050810;color:#C8D6EF;outline:none;margin-bottom:10px;box-sizing:border-box;-webkit-appearance:none">
+        <div style="font-size:10px;font-weight:700;color:#8BA4C8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Hasta</div>
+        <input type="date" id="vac-periodo-fin" style="width:100%;border:1.5px solid #0c2040;border-radius:9px;padding:10px;font-size:14px;font-family:inherit;font-weight:700;background:#050810;color:#C8D6EF;outline:none;margin-bottom:6px;box-sizing:border-box;-webkit-appearance:none">
+        <div id="vac-periodo-err" style="font-size:11px;color:#FF4D6D;min-height:16px;margin-bottom:4px"></div>
+        <button id="vac-periodo-del-btn" onclick="vacPeriodoEliminar()" style="display:none;width:100%;margin-bottom:8px;background:linear-gradient(135deg,#1a0008,#2d000f);border:1px solid #FF003C55;border-radius:9px;padding:9px;color:#FF4D6D;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">&#128465; Eliminar per&#237;odo</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="vacPeriodoModalClose()" style="flex:1;background:#0a1020;border:1px solid #0c2040;border-radius:9px;padding:11px;color:#8BA4C8;font-size:13px;font-weight:800;font-family:inherit">Cancelar</button>
+          <button onclick="vacPeriodoGuardar()" style="flex:1.3;background:linear-gradient(135deg,#002a00,#005500);border:1px solid #00FF7F40;border-radius:9px;padding:11px;color:#00FF7F;font-size:13px;font-weight:800;font-family:inherit">&#10003; Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 <script>
 
@@ -853,7 +898,7 @@ var TAB_ORDER=['calc','bascalc','hist','catalog','tiempos','bitacora','puertas']
     _sy=e.touches[0].clientY;
     // Gestos dentro del recortador de Puertas (mover/ajustar el recuadro verde) o del
     // scroll horizontal de Capacidad por Línea no deben disparar el cambio de pestaña
-    _skip=!!(e.target&&e.target.closest&&e.target.closest('#pz-crop-overlay, #hist-lineas-scroll'));
+    _skip=!!(e.target&&e.target.closest&&e.target.closest('#pz-crop-overlay, #hist-lineas-scroll, #vac-overlay'));
   },{passive:true});
   document.addEventListener('touchend',function(e){
     if(_skip){_skip=false;return;}
@@ -6398,6 +6443,188 @@ async function _pzRunOcr(img,imgUrl,inputEl,srcRect){
   }
 }
 // ===================== FIN PUERTAS MAREL =====================
+
+// ===================== VACACIONES =====================
+var VAC_MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+var vacYear=new Date().getFullYear();
+var _vacPeriodoEditId=null, _vacPeriodoPersonaId=null;
+
+function vacLoadPersonas(){
+  try{ var v=JSON.parse(localStorage.getItem('vac_personas')||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; }
+}
+function vacSavePersonas(arr){ try{ localStorage.setItem('vac_personas', JSON.stringify(arr)); }catch(e){} }
+function vacLoadPeriodos(){
+  try{ var v=JSON.parse(localStorage.getItem('vac_periodos')||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; }
+}
+function vacSavePeriodos(arr){ try{ localStorage.setItem('vac_periodos', JSON.stringify(arr)); }catch(e){} }
+
+function vacOpen(){
+  var ov=document.getElementById('vac-overlay');
+  if(!ov)return;
+  ov.style.display='flex';
+  vacRender();
+}
+function vacClose(){
+  var ov=document.getElementById('vac-overlay');
+  if(ov)ov.style.display='none';
+}
+function vacYearShift(delta){
+  vacYear+=delta;
+  vacRender();
+}
+
+function _vacIsLeap(year){
+  return (year%4===0&&year%100!==0)||year%400===0;
+}
+function _vacDaysInYear(year){
+  return _vacIsLeap(year)?366:365;
+}
+function _vacDayOfYear(dateStr,year){
+  var d=new Date(dateStr+'T00:00:00');
+  var start=new Date(year,0,1);
+  return Math.round((d-start)/86400000);
+}
+// Límites de cada mes como % del año (ancho real según días del mes) — para que la
+// cabecera, las franjas de fondo y las barras de período queden siempre alineadas.
+function _vacMonthBounds(year){
+  var totalDays=_vacDaysInYear(year);
+  var dim=[31,_vacIsLeap(year)?29:28,31,30,31,30,31,31,30,31,30,31];
+  var acc=0, out=[];
+  for(var i=0;i<12;i++){
+    out.push({name:VAC_MESES[i],widthPct:(dim[i]/totalDays)*100});
+    acc+=dim[i];
+  }
+  return out;
+}
+function _vacFmtFecha(s){
+  var p=s.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
+function _vacFmtRango(ini,fin){
+  return ini===fin?_vacFmtFecha(ini):(_vacFmtFecha(ini)+' — '+_vacFmtFecha(fin));
+}
+
+function vacRender(){
+  var yearLbl=document.getElementById('vac-year-label');
+  if(yearLbl)yearLbl.textContent=vacYear;
+  var personas=vacLoadPersonas();
+  var periodos=vacLoadPeriodos();
+  var body=document.getElementById('vac-body');
+  if(!body)return;
+  if(!personas.length){
+    body.innerHTML='<div style="text-align:center;color:#506480;font-size:12px;padding:50px 20px;line-height:1.6">A&uacute;n no agregas a nadie del equipo.<br>Usa el bot&oacute;n &#43; Agregar persona de abajo para comenzar.</div>';
+    return;
+  }
+  var totalDays=_vacDaysInYear(vacYear);
+  var mb=_vacMonthBounds(vacYear);
+  var stripes='<div style="position:absolute;inset:0;display:flex">'+
+    mb.map(function(m,i){return '<div style="width:'+m.widthPct.toFixed(3)+'%;flex:none'+(i<11?';border-right:1px solid #0d1a2e':'')+'"></div>';}).join('')+
+  '</div>';
+  var monthHeader='<div style="display:flex;font-size:8px;color:#506480;font-weight:700;margin-bottom:4px;padding:0 1px">'+
+    mb.map(function(m){return '<div style="width:'+m.widthPct.toFixed(3)+'%;flex:none;text-align:center;overflow:hidden;white-space:nowrap">'+m.name+'</div>';}).join('')+
+  '</div>';
+  var yStart=vacYear+'-01-01', yEnd=vacYear+'-12-31';
+  var html=monthHeader;
+  personas.forEach(function(p){
+    var perP=periodos.filter(function(x){return x.personaId===p.id;}).sort(function(a,b){return a.inicio<b.inicio?-1:1;});
+    var bars='';
+    perP.forEach(function(per){
+      if(per.fin<yStart||per.inicio>yEnd)return;
+      var clipStart=per.inicio<yStart?yStart:per.inicio;
+      var clipEnd=per.fin>yEnd?yEnd:per.fin;
+      var d0=_vacDayOfYear(clipStart,vacYear);
+      var d1=_vacDayOfYear(clipEnd,vacYear);
+      var leftPct=(d0/totalDays)*100;
+      var widthPct=Math.max(((d1-d0+1)/totalDays)*100,1.1);
+      bars+='<div onclick="vacPeriodoEditar(\''+per.id+'\')" style="position:absolute;top:3px;bottom:3px;left:'+leftPct.toFixed(3)+'%;width:'+widthPct.toFixed(3)+'%;background:linear-gradient(135deg,#FFD060,#FFC700);border-radius:4px;box-shadow:0 0 6px #FFD06070;cursor:pointer" title="'+_vacFmtRango(per.inicio,per.fin)+'"></div>';
+    });
+    html+='<div style="margin-bottom:12px;background:#040810;border-radius:10px;padding:9px 10px;border:1px solid #0d1a2e">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">'+
+        '<div style="flex:1;min-width:0;font-size:12px;font-weight:800;color:#C8D6EF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.nombre+'</div>'+
+        '<button onclick="vacPeriodoAbrirNuevo(\''+p.id+'\')" style="background:#001428;border:1px solid #00E5FF40;border-radius:7px;color:#00E5FF;font-size:10px;font-weight:800;padding:5px 9px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0">&#43; Per&#237;odo</button>'+
+        '<button onclick="vacPersonaEliminar(\''+p.id+'\')" title="Eliminar persona" style="background:none;border:none;color:#FF4D6D;font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0">&#128465;</button>'+
+      '</div>'+
+      '<div style="position:relative;height:24px;border-radius:5px;background:#02060e;overflow:hidden">'+stripes+bars+'</div>'+
+    '</div>';
+  });
+  body.innerHTML=html;
+}
+
+function vacAddPersonaPrompt(){
+  var nombre=prompt('Nombre de la persona:');
+  if(!nombre||!nombre.trim())return;
+  var personas=vacLoadPersonas();
+  personas.push({id:'p_'+Date.now()+'_'+Math.floor(Math.random()*1000),nombre:nombre.trim()});
+  vacSavePersonas(personas);
+  vacRender();
+}
+
+function vacPersonaEliminar(id){
+  if(!confirm('¿Eliminar a esta persona y todos sus períodos de vacaciones?'))return;
+  vacSavePersonas(vacLoadPersonas().filter(function(p){return p.id!==id;}));
+  vacSavePeriodos(vacLoadPeriodos().filter(function(x){return x.personaId!==id;}));
+  vacRender();
+}
+
+function vacPeriodoAbrirNuevo(personaId){
+  _vacPeriodoEditId=null;
+  _vacPeriodoPersonaId=personaId;
+  var p=vacLoadPersonas().filter(function(x){return x.id===personaId;})[0];
+  document.getElementById('vac-periodo-modal-title').textContent='Agregar período';
+  document.getElementById('vac-periodo-modal-persona').textContent=p?p.nombre:'';
+  document.getElementById('vac-periodo-inicio').value='';
+  document.getElementById('vac-periodo-fin').value='';
+  document.getElementById('vac-periodo-err').textContent='';
+  document.getElementById('vac-periodo-del-btn').style.display='none';
+  document.getElementById('vac-periodo-modal').style.display='flex';
+}
+
+function vacPeriodoEditar(periodoId){
+  var per=vacLoadPeriodos().filter(function(x){return x.id===periodoId;})[0];
+  if(!per)return;
+  _vacPeriodoEditId=periodoId;
+  _vacPeriodoPersonaId=per.personaId;
+  var p=vacLoadPersonas().filter(function(x){return x.id===per.personaId;})[0];
+  document.getElementById('vac-periodo-modal-title').textContent='Editar período';
+  document.getElementById('vac-periodo-modal-persona').textContent=p?p.nombre:'';
+  document.getElementById('vac-periodo-inicio').value=per.inicio;
+  document.getElementById('vac-periodo-fin').value=per.fin;
+  document.getElementById('vac-periodo-err').textContent='';
+  document.getElementById('vac-periodo-del-btn').style.display='';
+  document.getElementById('vac-periodo-modal').style.display='flex';
+}
+
+function vacPeriodoModalClose(){
+  document.getElementById('vac-periodo-modal').style.display='none';
+}
+
+function vacPeriodoGuardar(){
+  var ini=document.getElementById('vac-periodo-inicio').value;
+  var fin=document.getElementById('vac-periodo-fin').value;
+  var errEl=document.getElementById('vac-periodo-err');
+  if(!ini||!fin){errEl.textContent='Ingresa ambas fechas.';return;}
+  if(fin<ini){errEl.textContent='La fecha final no puede ser antes que la inicial.';return;}
+  var periodos=vacLoadPeriodos();
+  if(_vacPeriodoEditId){
+    periodos=periodos.map(function(x){
+      return x.id===_vacPeriodoEditId?{id:x.id,personaId:x.personaId,inicio:ini,fin:fin}:x;
+    });
+  }else{
+    periodos.push({id:'v_'+Date.now()+'_'+Math.floor(Math.random()*1000),personaId:_vacPeriodoPersonaId,inicio:ini,fin:fin});
+  }
+  vacSavePeriodos(periodos);
+  vacPeriodoModalClose();
+  vacRender();
+}
+
+function vacPeriodoEliminar(){
+  if(!_vacPeriodoEditId)return;
+  if(!confirm('¿Eliminar este período de vacaciones?'))return;
+  vacSavePeriodos(vacLoadPeriodos().filter(function(x){return x.id!==_vacPeriodoEditId;}));
+  vacPeriodoModalClose();
+  vacRender();
+}
+// ===================== FIN VACACIONES =====================
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
