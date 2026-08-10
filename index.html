@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.51 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.52 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -281,7 +281,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.51</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.52</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -321,7 +321,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.51</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.52</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -3346,14 +3346,16 @@ function _ocrParsePedidoLines(lines){
 }
 
 // Dibuja la imagen en un canvas con blur anti-muaré + grises + contraste, con rotación opcional
-function _ocrMakeCanvasPedido(img,W,H,rotateDeg){
+// light=true: sin blur ni binarización — para pantallazos digitales ya nítidos (el blur/Otsu
+// pensado para fotos de pantalla física destruye el texto de una captura de pantalla limpia)
+function _ocrMakeCanvasPedido(img,W,H,rotateDeg,light){
   var canvas=document.createElement('canvas');
   var cw=W, ch=H;
   if(rotateDeg===90||rotateDeg===270){cw=H;ch=W;}
   canvas.width=cw; canvas.height=ch;
   var ctx=canvas.getContext('2d');
   // Blur leve corta el muaré de fotografiar una pantalla antes de binarizar
-  ctx.filter='blur(0.5px) grayscale(1)';
+  ctx.filter=light?'grayscale(1)':'blur(0.5px) grayscale(1)';
   if(rotateDeg===90){
     ctx.translate(cw,0);
     ctx.rotate(Math.PI/2);
@@ -3365,8 +3367,10 @@ function _ocrMakeCanvasPedido(img,W,H,rotateDeg){
     ctx.rotate(-Math.PI/2);
   }
   ctx.drawImage(img,0,0,W,H);
-  // Binarización adaptativa (Otsu) — más nítida para OCR que solo subir contraste
-  _binarizeCanvasOtsu(canvas);
+  if(!light){
+    // Binarización adaptativa (Otsu) — más nítida para OCR que solo subir contraste, en fotos con muaré
+    _binarizeCanvasOtsu(canvas);
+  }
   return canvas;
 }
 
@@ -3425,16 +3429,24 @@ async function capturarPedido(input){
       }
     });
 
-    // Prueba 0°, y si no detecta nada, 180°/90°/270° — cubre fotos tomadas al revés o de lado
+    // Prueba 0°, y si no detecta nada, 180°/90°/270° — cubre fotos tomadas al revés o de lado.
+    // En cada ángulo prueba variante liviana (pantallazo digital nítido) y pesada (foto de
+    // pantalla física con muaré) — se queda con la que detecte más SKUs. Ver v2.52.
     var ANGLES=[0,180,90,270];
     var parsedSkus=[];
     for(var ai=0;ai<ANGLES.length;ai++){
       var deg=ANGLES[ai];
       progressLabel=deg===0?'':(' ('+deg+'&#176;)');
       msg.innerHTML=deg===0?'&#9889; Reconociendo texto...':('&#9889; Probando imagen rotada '+deg+'&#176;...');
-      var canvasR=_ocrMakeCanvasPedido(img,W,H,deg);
-      var skusR=await _ocrPedidoPass(worker,canvasR,progressLabel);
-      if(skusR.length>parsedSkus.length)parsedSkus=skusR;
+      var canvasLight=_ocrMakeCanvasPedido(img,W,H,deg,true);
+      var skusLight=await _ocrPedidoPass(worker,canvasLight,progressLabel);
+      if(skusLight.length>parsedSkus.length)parsedSkus=skusLight;
+      // Si la liviana ya encontró bastante, no vale la pena correr la pesada (más lenta)
+      if(!(skusLight.length>=3)){
+        var canvasHeavy=_ocrMakeCanvasPedido(img,W,H,deg,false);
+        var skusHeavy=await _ocrPedidoPass(worker,canvasHeavy,progressLabel);
+        if(skusHeavy.length>parsedSkus.length)parsedSkus=skusHeavy;
+      }
       if(parsedSkus.length>0)break;
     }
     URL.revokeObjectURL(imgUrl);
