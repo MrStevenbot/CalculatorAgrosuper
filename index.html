@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.56 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.57 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -281,7 +281,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.56</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.57</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -321,7 +321,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.56</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.57</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -3389,10 +3389,28 @@ function _ocrStripPedidoHeaders(lines){
   return out;
 }
 
+// Busca el total general de la planilla: el número suelto que viene 1-2 líneas después
+// de "Calibradas" (sin código de SKU al lado). Se usa para inferir por resta el kg de
+// un único SKU que haya quedado sin detectar, en vez de dejarlo siempre en blanco.
+function _ocrExtractGrandTotal(rawLines){
+  for(var i=0;i<rawLines.length;i++){
+    if(!/Calibradas/i.test(rawLines[i]))continue;
+    for(var j=i+1;j<Math.min(i+3,rawLines.length);j++){
+      var norm=rawLines[j].replace(/(\d)\.(\d{3})/g,'$1$2').replace(/,/g,'.');
+      var nums=(norm.match(/\b\d[\d.]*\b/g)||[]).map(parseFloat).filter(function(v){return v>=200&&v<=999999;});
+      if(nums.length)return nums[nums.length-1];
+    }
+    break;
+  }
+  return null;
+}
+
 async function _ocrPedidoPass(worker,canvas,label,allowLowKg){
   var dataUrl=canvas.toDataURL('image/png');
   var result=await worker.recognize(dataUrl);
-  var lines=_ocrStripPedidoHeaders(result.data.text.split(/[\n\r]+/).filter(function(l){return l.trim().length>2;}));
+  var rawLines=result.data.text.split(/[\n\r]+/).filter(function(l){return l.trim().length>2;});
+  var total=_ocrExtractGrandTotal(rawLines);
+  var lines=_ocrStripPedidoHeaders(rawLines);
   var parsedFlat=_ocrParsePedidoLines(lines,allowLowKg);
 
   // Si el pedido viene en varias columnas, reconstruir por geometría puede ordenar mejor
@@ -3400,7 +3418,8 @@ async function _ocrPedidoPass(worker,canvas,label,allowLowKg){
   var geoLines=_ocrStripPedidoHeaders(_reconstructTextByGeometry(result.data.words).split(/[\n\r]+/).filter(function(l){return l.trim().length>2;}));
   var parsedGeo=geoLines.length?_ocrParsePedidoLines(geoLines,allowLowKg):[];
 
-  return (parsedGeo.length>parsedFlat.length)?parsedGeo:parsedFlat;
+  var best=(parsedGeo.length>parsedFlat.length)?parsedGeo:parsedFlat;
+  return {skus:best,total:total};
 }
 
 async function capturarPedido(input){
@@ -3449,18 +3468,21 @@ async function capturarPedido(input){
     // pantalla física con muaré) — se queda con la que detecte más SKUs. Ver v2.52.
     var ANGLES=[0,180,90,270];
     var parsedSkus=[];
+    var grandTotal=null;
     for(var ai=0;ai<ANGLES.length;ai++){
       var deg=ANGLES[ai];
       progressLabel=deg===0?'':(' ('+deg+'&#176;)');
       msg.innerHTML=deg===0?'&#9889; Reconociendo texto...':('&#9889; Probando imagen rotada '+deg+'&#176;...');
       var canvasLight=_ocrMakeCanvasPedido(img,W,H,deg,true);
-      var skusLight=await _ocrPedidoPass(worker,canvasLight,progressLabel,true);
-      if(skusLight.length>parsedSkus.length)parsedSkus=skusLight;
+      var passLight=await _ocrPedidoPass(worker,canvasLight,progressLabel,true);
+      if(passLight.skus.length>parsedSkus.length)parsedSkus=passLight.skus;
+      if(passLight.total&&!grandTotal)grandTotal=passLight.total;
       // Si la liviana ya encontró bastante, no vale la pena correr la pesada (más lenta)
-      if(!(skusLight.length>=3)){
+      if(!(passLight.skus.length>=3)){
         var canvasHeavy=_ocrMakeCanvasPedido(img,W,H,deg,false);
-        var skusHeavy=await _ocrPedidoPass(worker,canvasHeavy,progressLabel,true);
-        if(skusHeavy.length>parsedSkus.length)parsedSkus=skusHeavy;
+        var passHeavy=await _ocrPedidoPass(worker,canvasHeavy,progressLabel,true);
+        if(passHeavy.skus.length>parsedSkus.length)parsedSkus=passHeavy.skus;
+        if(passHeavy.total&&!grandTotal)grandTotal=passHeavy.total;
       }
       if(parsedSkus.length>0){
         // Pasada extra en modo texto disperso: fusiona filas que el modo tabla (AUTO)
@@ -3473,8 +3495,9 @@ async function capturarPedido(input){
         try{
           await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SPARSE_TEXT});
           var canvasSparse=_ocrMakeCanvasPedido(img,W,H,deg,true);
-          var skusSparse=await _ocrPedidoPass(worker,canvasSparse,progressLabel,false);
-          parsedSkus=_ocrMergeSkuLists(parsedSkus,skusSparse);
+          var passSparse=await _ocrPedidoPass(worker,canvasSparse,progressLabel,false);
+          parsedSkus=_ocrMergeSkuLists(parsedSkus,passSparse.skus);
+          if(passSparse.total&&!grandTotal)grandTotal=passSparse.total;
         }finally{
           await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.AUTO});
         }
@@ -3492,6 +3515,24 @@ async function capturarPedido(input){
       setTimeout(function(){status.style.display='none';},3500);
       showOcrReview([]); // abre revisión vacía para agregar manual
       return;
+    }
+
+    // Si queda exactamente 1 SKU sin kg y se detectó el total general de la planilla,
+    // se infiere por resta (total − suma de lo ya detectado) — igual que se haría a mano
+    // con la planilla en papel. Con 2+ sin kg no se puede resolver (dos incógnitas, una
+    // ecuación), quedan en blanco igual. Se marca "calculado" para que se note que no es
+    // un valor leído directo de esa fila y conviene verificarlo contra la planilla.
+    if(grandTotal){
+      var sinKgItems=parsedSkus.filter(function(s){return s.sinKg;});
+      if(sinKgItems.length===1){
+        var sumaConocida=parsedSkus.reduce(function(a,s){return a+(s.sinKg?0:s.kg);},0);
+        var faltante=Math.round((grandTotal-sumaConocida)*100)/100;
+        if(faltante>0&&faltante<=200000){
+          sinKgItems[0].kg=faltante;
+          sinKgItems[0].sinKg=false;
+          sinKgItems[0].calculado=true;
+        }
+      }
     }
 
     showOcrReview(parsedSkus);
@@ -3530,11 +3571,11 @@ function showOcrReview(skus){
   var rows='';
   skus.forEach(function(s,i){
     var noMatch=s.matchBy==='noMatch';
-    var byNombre=s.matchBy==='nombre';
-    var bdr=noMatch?'#FF4D6D':(s.sinKg?'#FFB300':(byNombre?'#A78BFA':'#0c2040'));
+    var calc=!!s.calculado;
+    var bdr=noMatch?'#FF4D6D':(s.sinKg?'#FFB300':(calc?'#A78BFA':'#0c2040'));
     var badge=noMatch
       ?'<span style="font-size:9px;color:#FF4D6D;margin-left:4px">&#9888; sin match — reemplazar</span>'
-      :(byNombre?'<span style="font-size:9px;color:#A78BFA;margin-left:4px">&#9670; por nombre</span>':'');
+      :(calc?'<span style="font-size:9px;color:#A78BFA;margin-left:4px">&#9670; calculado por resta — verificar</span>':'');
     var skuLabel=noMatch?(s.rawCode||'?'):(s.sku||'');
     rows+=
       '<div id="ocr-row-'+i+'" style="display:flex;align-items:center;gap:8px;margin-bottom:6px;background:#060c18;border-radius:10px;padding:8px 10px;border:1px solid '+bdr+'30">'+
@@ -3544,7 +3585,7 @@ function showOcrReview(skus){
         '</div>'+
         '<input type="number" inputmode="decimal" value="'+(s.kg||'')+'" placeholder="kg"'+
         ' data-sku="'+s.sku+'" data-idx="'+i+'"'+
-        ' style="width:84px;border:1.5px solid '+(s.sinKg?'#FFB300':(byNombre?'#A78BFA':'#0c2040'))+';border-radius:8px;padding:7px 8px;font-size:15px;font-family:monospace;font-weight:700;background:#050810;color:#FFFFFF;outline:none;text-align:center;-webkit-appearance:none"'+
+        ' style="width:84px;border:1.5px solid '+(s.sinKg?'#FFB300':(calc?'#A78BFA':'#0c2040'))+';border-radius:8px;padding:7px 8px;font-size:15px;font-family:monospace;font-weight:700;background:#050810;color:#FFFFFF;outline:none;text-align:center;-webkit-appearance:none"'+
         '>'+
         '<button data-rm="'+i+'" style="background:none;border:none;color:#506480;font-size:16px;cursor:pointer;padding:2px 5px;flex-shrink:0">&#x2715;</button>'+
       '</div>';
