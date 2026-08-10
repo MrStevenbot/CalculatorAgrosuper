@@ -220,7 +220,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
 <div id="app-loading" style="position:fixed;inset:0;background:#00030c;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;transition:opacity .25s">
   <div style="font-size:36px">&#9889;</div>
   <div style="color:#FFD060;font-size:15px;font-weight:800;letter-spacing:1.5px;text-shadow:0 0 12px #FFD060aa">Control App</div>
-  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.55 · Cargando...</div>
+  <div style="color:#00E5FF;font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.7">v 2.56 · Cargando...</div>
 </div>
 <div id="app">
   <div class="hdr" style="position:relative">
@@ -281,7 +281,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div style="background:#0D1117;border:1.5px solid #2d3a50;border-radius:16px;padding:24px 20px;max-width:370px;width:100%;position:relative;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
           <button onclick="aboutToggle()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:#506480;font-size:20px;cursor:pointer;line-height:1">&#215;</button>
           <div style="font-size:18px;font-weight:800;color:#FFFFFF;margin-bottom:4px">Control App</div>
-          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.55</div>
+          <div style="font-size:10px;color:#00E5FF;font-weight:700;margin-bottom:14px;letter-spacing:.5px">v 2.56</div>
           <div style="font-size:12px;color:#8BA4C8;font-style:italic;margin-bottom:6px;line-height:1.5">Creada por quienes conocen la operación desde adentro.</div>
           <div style="font-size:11px;color:#506480;margin-bottom:14px">Desarrollada por <span style="color:#00E5FF;font-weight:700">Bryan Steven</span> — ingresó en 2020, actual Jefe de Línea de Producción (2026).</div>
           <div style="font-size:12px;color:#C8D6EF;line-height:1.65;margin-bottom:12px">Es una herramienta de gestión operativa que centraliza en tiempo real el conocimiento técnico, el control del turno y la toma de decisiones — entregando los KPIs del plan productivo directamente desde la línea de producción, disponible en cualquier dispositivo móvil, en cualquier momento, sin depender de sistemas centrales ni conexión a internet.</div>
@@ -321,7 +321,7 @@ button:active:not(:disabled){transform:scale(0.93)!important;filter:brightness(1
         <div>
           <div class="brand-name">Control App</div>
           <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.55</div>
+            <div style="font-size:9px;font-weight:700;color:#00E5FF;letter-spacing:.5px;text-shadow:0 0 8px #00E5FFaa" id="hdr-sub">v 2.56</div>
             <div style="font-size:9px;font-weight:700;color:#00E5FF;background:linear-gradient(135deg,#001a3d,#002a5c);border:1px solid #00E5FF99;border-radius:6px;padding:2px 8px;letter-spacing:.3px;text-shadow:0 0 6px #00E5FF80;box-shadow:0 0 8px #00E5FF30;flex-shrink:0"><span id="sku-total-count">0</span> SKUs</div>
             <button onclick="aboutToggle()" style="background:linear-gradient(135deg,#001a3d,#002a5c);border:1.5px solid #00E5FF99;border-radius:50%;width:22px;height:22px;color:#FFD060;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;padding:0;flex-shrink:0;box-shadow:0 0 8px #00E5FF40;text-shadow:0 0 8px #FFD060aa" title="Acerca de">&#9432;</button>
           </div>
@@ -3235,7 +3235,7 @@ function _ocrFindSkuFuzzy(raw){
 }
 
 // Extrae el primer número válido de un texto dado un mínimo
-function _ocrExtractKg(text, minVal){
+function _ocrExtractKg(text, minVal, allowLow){
   minVal=minVal||200;
   // Eliminar números que son unidades de peso en descripción: "700 GRS", "4oz", "5 Lb", "20 Kg"
   var cleaned=text.replace(/\b\d+[\d.,]*\s*(GRS|grs|Grs|[Gg]ramos?|[Kk][Gg]s?|[Oo][Zz]|[Ll][Bb]s?)\b/g,' ');
@@ -3250,14 +3250,29 @@ function _ocrExtractKg(text, minVal){
       candidates.push(v);
     }
   });
-  if(!candidates.length)return 0;
+  if(!candidates.length){
+    // Ningún número sobre el piso normal (200): puede ser un pedido chico real (ej. 98 kg)
+    // en vez de ruido de la descripción del producto (calibres, paquetes). Reintenta con
+    // piso bajo tomando el ÚLTIMO número de la línea — la columna de kg siempre es la
+    // última, así no engancha un número suelto que venga antes en la descripción.
+    // Solo se permite en la pasada normal (allowLow) — en el modo de texto disperso
+    // (pasada de respaldo que solo agrega códigos, ver v2.53) la fila se fragmenta tanto
+    // que un "3" suelto de OCR mal leído puede colarse como si fuera el kg real.
+    if(!allowLow)return 0;
+    var low=[];
+    matches.forEach(function(n){
+      var v=parseFloat(n);
+      if(v>=1&&v<minVal&&!/^1[0-9]{6}$/.test(String(Math.round(v))))low.push(v);
+    });
+    return low.length?low[low.length-1]:0;
+  }
   var small=candidates.filter(function(v){return v<=100000;});
   return small.length?small[0]:candidates[0];
 }
 
 // Detecta SKUs y kg a partir de las líneas ya reconocidas por OCR
 // Estrategia 1: match exacto por código — Estrategia 2: fuzzy 1 dígito — sin match: queda para revisión manual
-function _ocrParsePedidoLines(lines){
+function _ocrParsePedidoLines(lines,allowLowKg){
   var seenSkus={};
   var skuLines=[];
   lines.forEach(function(line,idx){
@@ -3305,12 +3320,12 @@ function _ocrParsePedidoLines(lines){
     var nextIsNewSku=/^\s*1[0-9]{6}/.test(nextLine);
 
     // 1° intento: misma línea
-    var kg=_ocrExtractKg(sameLine,200);
+    var kg=_ocrExtractKg(sameLine,200,allowLowKg);
 
     // 2° intento: línea siguiente si OCR partió la fila y no es otro SKU
-    if(!kg&&!nextIsNewSku) kg=_ocrExtractKg(nextLine,200);
+    if(!kg&&!nextIsNewSku) kg=_ocrExtractKg(nextLine,200,allowLowKg);
 
-    parsedSkus.push({sku:item.sku,nombre:item.nombre,kg:kg>0?kg:0,sinKg:kg<200,matchBy:item.matchBy||'codigo'});
+    parsedSkus.push({sku:item.sku,nombre:item.nombre,kg:kg>0?kg:0,sinKg:kg<1,matchBy:item.matchBy||'codigo'});
   });
   return parsedSkus;
 }
@@ -3374,16 +3389,16 @@ function _ocrStripPedidoHeaders(lines){
   return out;
 }
 
-async function _ocrPedidoPass(worker,canvas,label){
+async function _ocrPedidoPass(worker,canvas,label,allowLowKg){
   var dataUrl=canvas.toDataURL('image/png');
   var result=await worker.recognize(dataUrl);
   var lines=_ocrStripPedidoHeaders(result.data.text.split(/[\n\r]+/).filter(function(l){return l.trim().length>2;}));
-  var parsedFlat=_ocrParsePedidoLines(lines);
+  var parsedFlat=_ocrParsePedidoLines(lines,allowLowKg);
 
   // Si el pedido viene en varias columnas, reconstruir por geometría puede ordenar mejor
   // cada fila (código+kg) que el orden que arma Tesseract internamente
   var geoLines=_ocrStripPedidoHeaders(_reconstructTextByGeometry(result.data.words).split(/[\n\r]+/).filter(function(l){return l.trim().length>2;}));
-  var parsedGeo=geoLines.length?_ocrParsePedidoLines(geoLines):[];
+  var parsedGeo=geoLines.length?_ocrParsePedidoLines(geoLines,allowLowKg):[];
 
   return (parsedGeo.length>parsedFlat.length)?parsedGeo:parsedFlat;
 }
@@ -3439,23 +3454,26 @@ async function capturarPedido(input){
       progressLabel=deg===0?'':(' ('+deg+'&#176;)');
       msg.innerHTML=deg===0?'&#9889; Reconociendo texto...':('&#9889; Probando imagen rotada '+deg+'&#176;...');
       var canvasLight=_ocrMakeCanvasPedido(img,W,H,deg,true);
-      var skusLight=await _ocrPedidoPass(worker,canvasLight,progressLabel);
+      var skusLight=await _ocrPedidoPass(worker,canvasLight,progressLabel,true);
       if(skusLight.length>parsedSkus.length)parsedSkus=skusLight;
       // Si la liviana ya encontró bastante, no vale la pena correr la pesada (más lenta)
       if(!(skusLight.length>=3)){
         var canvasHeavy=_ocrMakeCanvasPedido(img,W,H,deg,false);
-        var skusHeavy=await _ocrPedidoPass(worker,canvasHeavy,progressLabel);
+        var skusHeavy=await _ocrPedidoPass(worker,canvasHeavy,progressLabel,true);
         if(skusHeavy.length>parsedSkus.length)parsedSkus=skusHeavy;
       }
       if(parsedSkus.length>0){
         // Pasada extra en modo texto disperso: fusiona filas que el modo tabla (AUTO)
         // descarta por quedar pegadas a una barra de subtotal sin margen. No reemplaza
-        // el resultado ya bueno, solo agrega los SKUs que falten.
+        // el resultado ya bueno, solo agrega los SKUs que falten. allowLowKg=false porque
+        // en este modo la fila se fragmenta tanto que un número suelto mal leído de la
+        // descripción (ej. "s/t"→"3/t") puede colarse como si fuera el kg real — mejor
+        // dejarlo en blanco para revisión manual que mostrar un dato falso con confianza.
         msg.innerHTML='&#9889; Verificando filas adicionales...';
         try{
           await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.SPARSE_TEXT});
           var canvasSparse=_ocrMakeCanvasPedido(img,W,H,deg,true);
-          var skusSparse=await _ocrPedidoPass(worker,canvasSparse,progressLabel);
+          var skusSparse=await _ocrPedidoPass(worker,canvasSparse,progressLabel,false);
           parsedSkus=_ocrMergeSkuLists(parsedSkus,skusSparse);
         }finally{
           await worker.setParameters({tessedit_pageseg_mode:Tesseract.PSM.AUTO});
